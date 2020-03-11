@@ -8,10 +8,12 @@
  *
  * You are encouraged to use STL container types as an underlying storage mechanism for the grid cells.
  *
- * @author YOUR_STUDENT_NUMBER
+ * @author ***REMOVED***
  * @date March, 2020
  */
+#include <iostream>
 #include "grid.h"
+#include "vector"
 
 // Include the minimal number of headers needed to support your implementation.
 // #include ...
@@ -28,6 +30,9 @@
  *      Grid grid;
  *
  */
+ Grid::Grid() : Grid(0) {
+
+ }
 
 
 /**
@@ -53,7 +58,9 @@
  * @param square_size
  *      The edge size to use for the width and height of the grid.
  */
+ Grid::Grid(unsigned int gridSize) : Grid(gridSize, gridSize){
 
+ }
 
 /**
  * Grid::Grid(width, height)
@@ -71,7 +78,11 @@
  * @param height
  *      The height of the grid.
  */
-
+Grid::Grid(unsigned int width, unsigned int height) : height(height), width(width) {
+    for (unsigned int i=0; i < this->width * this->height; i++) {
+        this->grid.push_back(Cell::DEAD);
+    }
+}
 
 /**
  * Grid::get_width()
@@ -96,7 +107,9 @@
  * @return
  *      The width of the grid.
  */
-
+unsigned  int Grid::get_width() {
+    return this->width;
+}
 
 /**
  * Grid::get_height()
@@ -121,7 +134,9 @@
  * @return
  *      The height of the grid.
  */
-
+unsigned int Grid::get_height() {
+    return this->height;
+}
 
 /**
  * Grid::get_total_cells()
@@ -146,7 +161,9 @@
  * @return
  *      The number of total cells.
  */
-
+unsigned int Grid::get_total_cells() {
+    return this->height * this->width;
+}
 
 /**
  * Grid::get_alive_cells()
@@ -171,7 +188,15 @@
  * @return
  *      The number of alive cells.
  */
-
+unsigned int Grid::get_alive_cells() {
+    unsigned int total = 0;
+    for(unsigned int i = 0; i < this->grid.size(); ++i) {
+        if (this->grid[i] == Cell::ALIVE) {
+            total += 1;
+        }
+    }
+    return total;
+}
 
 /**
  * Grid::get_dead_cells()
@@ -196,7 +221,15 @@
  * @return
  *      The number of dead cells.
  */
-
+unsigned int Grid::get_dead_cells() {
+    unsigned int total = 0;
+    for(unsigned int i = 0; i < this->grid.size(); ++i) {
+        if (this->grid[i] == Cell::DEAD) {
+            total += 1;
+        }
+    }
+    return total;
+}
 
 /**
  * Grid::resize(square_size)
