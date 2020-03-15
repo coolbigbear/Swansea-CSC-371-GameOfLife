@@ -56,12 +56,12 @@
  *      World z = 16;
  *
  * @param square_size
- *      The edge size to use for the width and height of the world.
+ *      The edge size to use for the width and gridHeight of the world.
  */
 
 
 /**
- * World::World(width, height)
+ * World::World(width, gridHeight)
  *
  * Construct a world with the desired size filled with dead cells.
  *
@@ -73,7 +73,7 @@
  * @param width
  *      The width of the world.
  * @param height
- *      The height of the world.
+ *      The gridHeight of the world.
  */
 
 
@@ -126,7 +126,7 @@
 /**
  * World::get_height()
  *
- * Gets the current height of the world.
+ * Gets the current gridHeight of the world.
  * The function should be callable from a constant context.
  *
  * @example
@@ -134,17 +134,17 @@
  *      // Make a world
  *      World world(4, 4);
  *
- *      // Print the height of the worlds grid to the console
+ *      // Print the gridHeight of the worlds grid to the console
  *      std::cout << world.get_height() << std::endl;
  *
  *      // Should also be callable in a constant context
  *      const World &read_only_world = world;
  *
- *      // Print the height of the worlds grid to the console
+ *      // Print the gridHeight of the worlds grid to the console
  *      std::cout << read_only_world.get_height() << std::endl;
  *
  * @return
- *      The height of the world.
+ *      The gridHeight of the world.
  */
 
 
@@ -252,7 +252,7 @@
 /**
  * World::resize(square_size)
  *
- * Resize the current state grid in to the new square width and height.
+ * Resize the current state grid in to the new square width and gridHeight.
  *
  * The content of the current state grid should be preserved within the kept region.
  * The values in the next state grid do not need to be preserved, allowing an easy optimization.
@@ -266,14 +266,14 @@
  *      world.resize(8);
  *
  * @param square_size
- *      The new edge size for both the width and height of the grid.
+ *      The new edge size for both the width and gridHeight of the grid.
  */
 
 
 /**
  * World::resize(new_width, new_height)
  *
- * Resize the current state grid in to the new width and height.
+ * Resize the current state grid in to the new width and gridHeight.
  *
  * The content of the current state grid should be preserved within the kept region.
  * The values in the next state grid do not need to be preserved, allowing an easy optimization.
@@ -290,7 +290,7 @@
  *      The new width for the grid.
  *
  * @param new_height
- *      The new height for the grid.
+ *      The new gridHeight for the grid.
  */
 
 

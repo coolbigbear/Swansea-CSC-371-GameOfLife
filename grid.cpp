@@ -11,9 +11,11 @@
  * @author ***REMOVED***
  * @date March, 2020
  */
-#include <iostream>
 #include "grid.h"
-#include "vector"
+#include <cstdlib>
+#include <vector>
+#include <iostream>
+#include <cstring>
 
 // Include the minimal number of headers needed to support your implementation.
 // #include ...
@@ -30,10 +32,8 @@
  *      Grid grid;
  *
  */
- Grid::Grid() : Grid(0) {
-
- }
-
+Grid::Grid() : Grid(0) {
+}
 
 /**
  * Grid::Grid(square_size)
@@ -58,9 +58,8 @@
  * @param square_size
  *      The edge size to use for the width and height of the grid.
  */
- Grid::Grid(unsigned int gridSize) : Grid(gridSize, gridSize){
-
- }
+Grid::Grid(unsigned int gridSize) : Grid(gridSize, gridSize) {
+}
 
 /**
  * Grid::Grid(width, height)
@@ -78,10 +77,10 @@
  * @param height
  *      The height of the grid.
  */
-Grid::Grid(unsigned int width, unsigned int height) : height(height), width(width) {
-    for (unsigned int i=0; i < this->width * this->height; i++) {
-        this->grid.push_back(Cell::DEAD);
-    }
+Grid::Grid(unsigned int width, unsigned int height) : gridHeight(height), gridWidth(width) {
+    std::vector<char> tempGrid;
+    tempGrid.assign(width * height, Cell::DEAD);
+    this->grid = tempGrid;
 }
 
 /**
@@ -107,8 +106,8 @@ Grid::Grid(unsigned int width, unsigned int height) : height(height), width(widt
  * @return
  *      The width of the grid.
  */
-unsigned  int Grid::get_width() {
-    return this->width;
+unsigned int Grid::get_width() {
+    return this->gridWidth;
 }
 
 /**
@@ -135,7 +134,7 @@ unsigned  int Grid::get_width() {
  *      The height of the grid.
  */
 unsigned int Grid::get_height() {
-    return this->height;
+    return this->gridHeight;
 }
 
 /**
@@ -162,7 +161,7 @@ unsigned int Grid::get_height() {
  *      The number of total cells.
  */
 unsigned int Grid::get_total_cells() {
-    return this->height * this->width;
+    return this->grid.size();
 }
 
 /**
@@ -190,8 +189,8 @@ unsigned int Grid::get_total_cells() {
  */
 unsigned int Grid::get_alive_cells() {
     unsigned int total = 0;
-    for(unsigned int i = 0; i < this->grid.size(); ++i) {
-        if (this->grid[i] == Cell::ALIVE) {
+    for (char i : this->grid) {
+        if (i == Cell::ALIVE) {
             total += 1;
         }
     }
@@ -223,8 +222,8 @@ unsigned int Grid::get_alive_cells() {
  */
 unsigned int Grid::get_dead_cells() {
     unsigned int total = 0;
-    for(unsigned int i = 0; i < this->grid.size(); ++i) {
-        if (this->grid[i] == Cell::DEAD) {
+    for (char i : this->grid) {
+        if (i == Cell::DEAD) {
             total += 1;
         }
     }
@@ -248,7 +247,9 @@ unsigned int Grid::get_dead_cells() {
  * @param square_size
  *      The new edge size for both the width and height of the grid.
  */
-
+void Grid::resize(unsigned int square_size) {
+    resize(square_size, square_size);
+}
 
 /**
  * Grid::resize(width, height)
@@ -270,7 +271,45 @@ unsigned int Grid::get_dead_cells() {
  * @param new_height
  *      The new height for the grid.
  */
+void Grid::resize(unsigned int width, unsigned int height) {
 
+    unsigned int newSize = width * height;
+    std::vector<char> grid2;
+    grid2.assign(newSize,Cell::DEAD);
+
+    if (this->gridWidth == 0 || this->gridHeight == 0) {
+        for (unsigned int i = 0; i < newSize; i++) {
+            grid2[i] = Cell::DEAD;
+        }
+
+    }
+    else if (this->gridWidth < width || this->gridHeight < height) {
+        unsigned int j = 0;
+        for (unsigned int i = 0; i < newSize; i++) {
+            if (j > this->gridWidth) {
+                i += abs(this->gridWidth - width);
+            } else {
+                grid2[i] = grid[j];
+                j++;
+            }
+        }
+    }
+    else if (this->gridWidth > width || this->gridHeight > height) {
+        unsigned int j = 0;
+        for (unsigned int i = 0; i < newSize; i++) {
+            if (j > width) {
+                i += abs(this->gridWidth - width);
+            } else {
+                grid2[i] = grid[j];
+                j++;
+            }
+        }
+    }
+
+    this->grid = grid2;
+    this->gridHeight = height;
+    this->gridWidth = width;
+}
 
 /**
  * Grid::get_index(x, y)
@@ -324,7 +363,6 @@ unsigned int Grid::get_dead_cells() {
  * Grid::set(x, y, value)
  *
  * Overwrites the value at the desired coordinate.
- * The function should be callable from a constant context.
  * Should be implemented by invoking Grid::operator()(x, y).
  *
  * @example
@@ -553,3 +591,18 @@ unsigned int Grid::get_dead_cells() {
  *      Returns a reference to the output stream to enable operator chaining.
  */
 
+void Grid::print_grid() {
+    std::cout << "Printing grid" << std::endl;
+    std::cout << "Grid size: " << this->gridWidth * this->gridHeight << std::endl;
+    unsigned int j = 1;
+    for (unsigned int i = 0; i < this->gridWidth * this->gridHeight; i++) {
+        if (j > this->gridWidth) {
+            j = 1;
+            std::cout << "" << std::endl;
+        }
+        char bitch = this->grid[i];
+        std::cout << bitch << " ";
+        j++;
+    }
+    std::cout << "" << std::endl;
+}

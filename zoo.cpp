@@ -5,16 +5,16 @@
  *
  *      - Grids can be loaded from and saved to an ascii file format.
  *          - Ascii files are composed of:
- *              - A header line containing an integer width and height separated by a space.
- *              - followed by (height) number of lines, each containing (width) number of characters,
+ *              - A header line containing an integer width and gridHeight separated by a space.
+ *              - followed by (gridHeight) number of lines, each containing (width) number of characters,
  *                terminated by a newline character.
  *              - (space) ' ' is Cell::DEAD, (hash) '#' is Cell::ALIVE.
  *
  *      - Grids can be loaded from and saved to an binary file format.
  *          - Binary files are composed of:
  *              - a 4 byte int representing the grid width
- *              - a 4 byte int representing the grid height
- *              - followed by (width * height) number of individual bits in C-style row/column format,
+ *              - a 4 byte int representing the grid gridHeight
+ *              - followed by (width * gridHeight) number of individual bits in C-style row/column format,
  *                padded with zero or more 0 bits.
  *              - a 0 bit should be considered Cell::DEAD, a 1 bit should be considered Cell::ALIVE.
  *
@@ -73,7 +73,7 @@
 /**
  * Zoo::light_weight_spaceship()
  *
- * Construct a 3x3 grid containing a light weight spaceship.
+ * Construct a 5x4 grid containing a light weight spaceship.
  * https://www.conwaylife.com/wiki/Lightweight_spaceship
  *
  * @example
@@ -113,7 +113,7 @@
  * @throws
  *      Throws std::runtime_error or sub-class if:
  *          - The file cannot be opened.
- *          - The parsed width or height is not a positive integer.
+ *          - The parsed width or gridHeight is not a positive integer.
  *          - Newline characters are not found when expected during parsing.
  *          - The character for a cell is not the ALIVE or DEAD character.
  */

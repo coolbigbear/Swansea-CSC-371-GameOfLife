@@ -9,6 +9,7 @@
  * @date March, 2020
  */
 #pragma once
+
 #include <vector>
 
 // Add the minimal number of includes you need in order to declare the class.
@@ -18,7 +19,7 @@
  * A Cell is a char limited to two named values for Cell::DEAD and Cell::ALIVE.
  */
 enum Cell : char {
-    DEAD  = ' ',
+    DEAD = ' ',
     ALIVE = '#'
 };
 
@@ -26,24 +27,25 @@ enum Cell : char {
  * Declare the structure of the Grid class for representing a 2d grid of cells.
  */
 class Grid {
-    private:
-        std::vector<char> grid;
-        unsigned int height;
-        unsigned int width;
+private:
+    std::vector<char> grid;
+    unsigned int gridHeight;
+    unsigned int gridWidth;
 
-//        unsigned int get_index(unsigned int x, unsigned int y);
+    //unsigned int get_index(unsigned int x, unsigned int y);
 
-    public:
-        Grid();
-        explicit Grid(unsigned int gridSize);
-        explicit Grid(unsigned int width, unsigned int height);
-        unsigned int get_width();
-        unsigned int get_height();
-        unsigned int get_total_cells();
-        unsigned int get_alive_cells();
-        unsigned int get_dead_cells();
-//        void resize(unsigned int square_size);
-//        void resize(unsigned int width, unsigned int height);
+public:
+    Grid();
+    explicit Grid(unsigned int gridSize);
+    explicit Grid(unsigned int width, unsigned int height);
+    unsigned int get_width();
+    unsigned int get_height();
+    unsigned int get_total_cells();
+    unsigned int get_alive_cells();
+    unsigned int get_dead_cells();
+    void resize(unsigned int square_size);
+    void resize(unsigned int width, unsigned int height);
+    void print_grid();
 //        Cell get(unsigned int x, unsigned int y);
 //        void set(unsigned int x, unsigned int y, Cell value);
 //        Cell* operator()(unsigned int x, unsigned int y);
