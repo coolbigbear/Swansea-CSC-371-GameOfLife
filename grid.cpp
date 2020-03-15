@@ -12,10 +12,8 @@
  * @date March, 2020
  */
 #include "grid.h"
-#include <cstdlib>
 #include <vector>
 #include <iostream>
-#include <cstring>
 
 // Include the minimal number of headers needed to support your implementation.
 // #include ...
@@ -80,6 +78,7 @@ Grid::Grid(unsigned int gridSize) : Grid(gridSize, gridSize) {
 Grid::Grid(unsigned int width, unsigned int height) : gridHeight(height), gridWidth(width) {
     std::vector<char> tempGrid;
     tempGrid.assign(width * height, Cell::DEAD);
+
     this->grid = tempGrid;
 }
 
@@ -277,31 +276,41 @@ void Grid::resize(unsigned int width, unsigned int height) {
     std::vector<char> grid2;
     grid2.assign(newSize,Cell::DEAD);
 
+    unsigned int j = 0;
+    unsigned int k = 0;
+    unsigned int i = 0;
+
     if (this->gridWidth == 0 || this->gridHeight == 0) {
-        for (unsigned int i = 0; i < newSize; i++) {
+        for (i = 0; i < newSize; i++) {
             grid2[i] = Cell::DEAD;
         }
 
     }
     else if (this->gridWidth < width || this->gridHeight < height) {
-        unsigned int j = 0;
-        for (unsigned int i = 0; i < newSize; i++) {
-            if (j > this->gridWidth) {
+        for (i = 0; i < newSize; i++) {
+            if (k >= this->gridWidth) {
+                k = 0;
                 i += abs(this->gridWidth - width);
-            } else {
-                grid2[i] = grid[j];
-                j++;
+            }
+            grid2[i] = grid[j];
+            j++;
+            k++;
+            if (j == this->grid.size()) {
+                break;
             }
         }
     }
     else if (this->gridWidth > width || this->gridHeight > height) {
-        unsigned int j = 0;
-        for (unsigned int i = 0; i < newSize; i++) {
-            if (j > width) {
-                i += abs(this->gridWidth - width);
-            } else {
-                grid2[i] = grid[j];
-                j++;
+        for (i = 0; i < newSize; i++) {
+            if (k >= width) {
+                k = 0;
+                j += abs(this->gridWidth - width);
+            }
+            grid2[i] = grid[j];
+            j++;
+            k++;
+            if (j == newSize) {
+                break;
             }
         }
     }
@@ -327,7 +336,9 @@ void Grid::resize(unsigned int width, unsigned int height) {
  * @return
  *      The 1d offset from the start of the data array where the desired cell is located.
  */
-
+unsigned int Grid::get_index(unsigned int x, unsigned int y) {
+    return (y * get_width()) + x;
+}
 
 /**
  * Grid::get(x, y)
@@ -357,7 +368,9 @@ void Grid::resize(unsigned int width, unsigned int height) {
  * @throws
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
-
+Cell Grid::get(unsigned int x, unsigned int y) {
+    return Grid::operator()(x, y);
+}
 
 /**
  * Grid::set(x, y, value)
@@ -385,7 +398,10 @@ void Grid::resize(unsigned int width, unsigned int height) {
  * @throws
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
-
+void Grid::set(unsigned int x, unsigned int y, Cell value) {
+    Cell &cell = Grid::operator()(x, y);
+    cell = value;
+}
 
 /**
  * Grid::operator()(x, y)
@@ -422,7 +438,10 @@ void Grid::resize(unsigned int width, unsigned int height) {
  * @throws
  *      std::runtime_error or sub-class if x,y is not a valid coordinate within the grid.
  */
-
+Cell & Grid::operator()(unsigned int x, unsigned int y) {
+    char &desiredCell = this->grid[Grid::get_index(x, y)];
+    return reinterpret_cast<Cell &>(desiredCell);
+}
 
 /**
  * Grid::operator()(x, y)
@@ -454,7 +473,10 @@ void Grid::resize(unsigned int width, unsigned int height) {
  * @throws
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
-
+const Cell & Grid::operato(unsigned int x, unsigned int y) {
+    char &desiredCell = this->grid[Grid::get_index(x, y)];
+    return reinterpret_cast<Cell &>(desiredCell);
+}
 
 /**
  * Grid::crop(x0, y0, x1, y1)

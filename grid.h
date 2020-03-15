@@ -19,7 +19,7 @@
  * A Cell is a char limited to two named values for Cell::DEAD and Cell::ALIVE.
  */
 enum Cell : char {
-    DEAD = ' ',
+    DEAD = 'O',
     ALIVE = '#'
 };
 
@@ -32,7 +32,7 @@ private:
     unsigned int gridHeight;
     unsigned int gridWidth;
 
-    //unsigned int get_index(unsigned int x, unsigned int y);
+    unsigned int get_index(unsigned int x, unsigned int y);
 
 public:
     Grid();
@@ -46,10 +46,10 @@ public:
     void resize(unsigned int square_size);
     void resize(unsigned int width, unsigned int height);
     void print_grid();
-//        Cell get(unsigned int x, unsigned int y);
-//        void set(unsigned int x, unsigned int y, Cell value);
-//        Cell* operator()(unsigned int x, unsigned int y);
-//        const Cell* operator()(unsigned int x, unsigned int y);
+    Cell get(unsigned int x, unsigned int y);
+    void set(unsigned int x, unsigned int y, Cell value);
+    Cell & operator()(unsigned int x, unsigned int y);
+    const Cell & operato(unsigned int x, unsigned int y);
 //        Grid crop(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1);
 //        void merge(Grid other, unsigned int x0, unsigned int y0, bool alive_only = false);
 //        Grid rotate(int rotation);
