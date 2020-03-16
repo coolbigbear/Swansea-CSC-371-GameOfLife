@@ -279,42 +279,35 @@ void Grid::resize(unsigned int width, unsigned int height) {
     unsigned int j = 0;
     unsigned int k = 0;
     unsigned int i = 0;
+    unsigned int gridLength;
+    unsigned int gridSize;
 
-    if (this->gridWidth == 0 || this->gridHeight == 0) {
-        for (i = 0; i < newSize; i++) {
-            grid2[i] = Cell::DEAD;
-        }
-
+    if (this->gridWidth < width) {
+        gridLength = this->gridWidth;
+        gridSize = this->grid.size();
+    } else {
+        gridSize = newSize;
+        gridLength = width;
     }
-    else if (this->gridWidth < width || this->gridHeight < height) {
+
+    if (this->gridWidth != 0 && this->gridHeight != 0) {
         for (i = 0; i < newSize; i++) {
-            if (k >= this->gridWidth) {
+            if (k >= gridLength) {
                 k = 0;
-                i += abs(this->gridWidth - width);
+                if (this->gridWidth < width) {
+                    i += abs(this->gridWidth - width);
+                } else {
+                    j += abs(this->gridWidth - width);
+                }
             }
             grid2[i] = grid[j];
             j++;
             k++;
-            if (j == this->grid.size()) {
+            if (j == gridSize) {
                 break;
             }
         }
     }
-    else if (this->gridWidth > width || this->gridHeight > height) {
-        for (i = 0; i < newSize; i++) {
-            if (k >= width) {
-                k = 0;
-                j += abs(this->gridWidth - width);
-            }
-            grid2[i] = grid[j];
-            j++;
-            k++;
-            if (j == newSize) {
-                break;
-            }
-        }
-    }
-
     this->grid = grid2;
     this->gridHeight = height;
     this->gridWidth = width;
