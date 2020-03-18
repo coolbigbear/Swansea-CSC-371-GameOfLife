@@ -78,7 +78,6 @@ Grid::Grid(unsigned int gridSize) : Grid(gridSize, gridSize) {
 Grid::Grid(unsigned int width, unsigned int height) : gridHeight(height), gridWidth(width) {
     std::vector<char> tempGrid;
     tempGrid.assign(width * height, Cell::DEAD);
-
     this->grid = tempGrid;
 }
 
@@ -105,7 +104,7 @@ Grid::Grid(unsigned int width, unsigned int height) : gridHeight(height), gridWi
  * @return
  *      The width of the grid.
  */
-unsigned int Grid::get_width() {
+const unsigned int &Grid::get_width() const {
     return this->gridWidth;
 }
 
@@ -132,7 +131,7 @@ unsigned int Grid::get_width() {
  * @return
  *      The height of the grid.
  */
-unsigned int Grid::get_height() {
+const unsigned int &Grid::get_height() const {
     return this->gridHeight;
 }
 
@@ -159,7 +158,7 @@ unsigned int Grid::get_height() {
  * @return
  *      The number of total cells.
  */
-unsigned int Grid::get_total_cells() {
+unsigned int Grid::get_total_cells() const {
     return this->grid.size();
 }
 
@@ -186,8 +185,8 @@ unsigned int Grid::get_total_cells() {
  * @return
  *      The number of alive cells.
  */
-unsigned int Grid::get_alive_cells() {
-    unsigned int total = 0;
+unsigned int Grid::get_alive_cells() const {
+	unsigned int total = 0;
     for (char i : this->grid) {
         if (i == Cell::ALIVE) {
             total += 1;
@@ -219,7 +218,7 @@ unsigned int Grid::get_alive_cells() {
  * @return
  *      The number of dead cells.
  */
-unsigned int Grid::get_dead_cells() {
+unsigned int Grid::get_dead_cells() const {
     unsigned int total = 0;
     for (char i : this->grid) {
         if (i == Cell::DEAD) {
@@ -308,6 +307,7 @@ void Grid::resize(unsigned int width, unsigned int height) {
             }
         }
     }
+
     this->grid = grid2;
     this->gridHeight = height;
     this->gridWidth = width;
@@ -329,7 +329,7 @@ void Grid::resize(unsigned int width, unsigned int height) {
  * @return
  *      The 1d offset from the start of the data array where the desired cell is located.
  */
-unsigned int Grid::get_index(unsigned int x, unsigned int y) {
+unsigned int Grid::get_index(unsigned int x, unsigned int y) const {
     return (y * get_width()) + x;
 }
 
@@ -361,8 +361,8 @@ unsigned int Grid::get_index(unsigned int x, unsigned int y) {
  * @throws
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
-Cell Grid::get(unsigned int x, unsigned int y) {
-    return Grid::operator()(x, y);
+Cell Grid::get(unsigned int x, unsigned int y) const {
+    return (*this)(x, y);
 }
 
 /**
@@ -466,9 +466,9 @@ Cell & Grid::operator()(unsigned int x, unsigned int y) {
  * @throws
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
-const Cell & Grid::operato(unsigned int x, unsigned int y) {
-    char &desiredCell = this->grid[Grid::get_index(x, y)];
-    return reinterpret_cast<Cell &>(desiredCell);
+const Cell & Grid::operator()(unsigned int x, unsigned int y) const {
+    static const Cell cell = Cell(this->grid[Grid::get_index(x, y)]);
+	return cell;
 }
 
 /**
@@ -505,7 +505,41 @@ const Cell & Grid::operato(unsigned int x, unsigned int y) {
  *      std::exception or sub-class if x0,y0 or x1,y1 are not valid coordinates within the grid
  *      or if the crop window has a negative size.
  */
+Grid Grid::crop(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1) {
 
+	unsigned int width = x1 - x0;
+	unsigned int height = y1 - y0;
+	unsigned int j;
+	unsigned int i = 0;
+	unsigned int k = 0;
+
+	// Figure out if 0's are passed and where to start the grid
+	if (x0 == 0 || y0 == 0) {
+		if (x0 + y0 == 0) {
+			j = 0;
+		} else if (x0 == 0) {
+			j = y0;
+		} else {
+			j = x0;
+		}
+	} else {
+		j = (width + 2) * (height + 2); // Add 2 (1 for starting at 0, 1 for being exclusive on the grid i.e 1 over)
+	}
+
+	Grid temp = Grid(width, height);
+	// Loop over selected portion of grid and copy from old to new Grid.
+	for (;i < width * height; i++) {
+		if (k >= width) {
+			k = 0;
+			j += this->gridWidth - width;
+		}
+		temp.grid[i] = this->grid[j];
+		j++;
+		k++;
+	}
+
+	return temp;
+}
 
 /**
  * Grid::merge(other, x0, y0, alive_only = false)
