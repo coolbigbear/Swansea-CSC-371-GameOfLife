@@ -271,6 +271,7 @@ void Grid::resize(unsigned int square_size) {
  */
 void Grid::resize(unsigned int width, unsigned int height) {
 
+	// Create new grid to copy old grid in to
     unsigned int newSize = width * height;
     std::vector<char> grid2;
     grid2.assign(newSize,Cell::DEAD);
@@ -281,6 +282,7 @@ void Grid::resize(unsigned int width, unsigned int height) {
     unsigned int gridLength;
     unsigned int gridSize;
 
+    // Set variables depending if grid is being made smaller or bigger
     if (this->gridWidth < width) {
         gridLength = this->gridWidth;
         gridSize = this->grid.size();
@@ -289,8 +291,11 @@ void Grid::resize(unsigned int width, unsigned int height) {
         gridLength = width;
     }
 
+    // Loop over new grid and copy elements from old grid to new grid
     if (this->gridWidth != 0 && this->gridHeight != 0) {
         for (i = 0; i < newSize; i++) {
+
+        	// Check if reached end of row, if it has, increase i/j to read next row
             if (k >= gridLength) {
                 k = 0;
                 if (this->gridWidth < width) {
@@ -302,6 +307,7 @@ void Grid::resize(unsigned int width, unsigned int height) {
             grid2[i] = grid[j];
             j++;
             k++;
+            // Break when reach end of grid (new or old depending is making smaller or bigger)
             if (j == gridSize) {
                 break;
             }
@@ -432,8 +438,7 @@ void Grid::set(unsigned int x, unsigned int y, Cell value) {
  *      std::runtime_error or sub-class if x,y is not a valid coordinate within the grid.
  */
 Cell & Grid::operator()(unsigned int x, unsigned int y) {
-    char &desiredCell = this->grid[Grid::get_index(x, y)];
-    return reinterpret_cast<Cell &>(desiredCell);
+    return reinterpret_cast<Cell &>(this->grid[Grid::get_index(x, y)]);
 }
 
 /**
@@ -466,9 +471,10 @@ Cell & Grid::operator()(unsigned int x, unsigned int y) {
  * @throws
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
-const Cell & Grid::operator()(unsigned int x, unsigned int y) const {
-    static const Cell cell = Cell(this->grid[Grid::get_index(x, y)]);
-	return cell;
+Cell Grid::operator()(unsigned int x, unsigned int y) const {
+	auto lmao = Cell(this->grid[Grid::get_index(x, y)]);
+	return lmao;
+
 }
 
 /**
@@ -518,7 +524,7 @@ Grid Grid::crop(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int 
 		if (x0 + y0 == 0) {
 			j = 0;
 		} else if (x0 == 0) {
-			j = y0;
+			j = y0 * this->gridWidth;
 		} else {
 			j = x0;
 		}
