@@ -584,7 +584,44 @@ Grid Grid::crop(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int 
  * @throws
  *      std::exception or sub-class if the other grid being placed does not fit within the bounds of the current grid.
  */
+void Grid::merge(Grid other, unsigned int x0, unsigned int y0, bool alive_only) {
+	unsigned int width = other.gridWidth;
+	unsigned int height = other.gridHeight;
+	unsigned int j;
+	unsigned int i = 0;
+	unsigned int k = 0;
 
+	// Figure out if 0's are passed and where to start the grid
+	if (x0 == 0 || y0 == 0) {
+		if (x0 + y0 == 0) {
+			j = 0;
+		} else if (x0 == 0) {
+			j = y0;
+		} else {
+			j = x0;
+		}
+	} else {
+		j = (this->gridWidth * y0) + x0; // Add 2 (1 for starting at 0, 1 for being exclusive on the grid i.e 1 over)
+	}
+
+	// Loop over selected portion of grid and copy from other to current.
+	for (;i < width * height; i++) {
+		if (k >= width) {
+			k = 0;
+			j += this->gridWidth - width;
+		}
+		if (alive_only) {
+			Cell &cell = reinterpret_cast<Cell &>(this->grid[j]);
+			if (cell == Cell::DEAD) {
+				this->grid[j] = other.grid[i];
+			}
+		} else {
+			this->grid[j] = other.grid[i];
+		}
+		j++;
+		k++;
+	}
+}
 
 /**
  * Grid::rotate(rotation)
