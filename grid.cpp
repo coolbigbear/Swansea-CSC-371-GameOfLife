@@ -732,19 +732,38 @@ Grid Grid::rotate(int rotation) const {
  * @return
  *      Returns a reference to the output stream to enable operator chaining.
  */
+std::ostream & operator<<(std::ostream & output_stream, Grid& grid) {
 
-void Grid::print_grid() {
-    std::cout << "Printing grid" << std::endl;
-    std::cout << "Grid size: " << this->gridWidth * this->gridHeight << std::endl;
-    unsigned int j = 1;
-    for (unsigned int i = 0; i < this->gridWidth * this->gridHeight; i++) {
-        if (j > this->gridWidth) {
-            j = 1;
-            std::cout << "" << std::endl;
-        }
-        char bitch = this->grid[i];
-        std::cout << bitch << " ";
-        j++;
-    }
-    std::cout << "" << std::endl;
+	std::string padding = "+" + std::string(grid.get_width(), '-') + "+";
+	output_stream << padding << std::endl;
+	unsigned int j = 1;
+	for (unsigned int i = 0; i < grid.get_size(); i++) {
+		if (j == 1) {
+			output_stream << "|";
+		}
+		output_stream << grid.getGrid()[i];
+		j++;
+		if (j > grid.getGridWidth()) {
+			j = 1;
+			output_stream << "|" << std::endl;
+		}
+	}
+	output_stream << padding << std::endl;
+	return output_stream;
+}
+
+const std::vector<char> &Grid::getGrid() const {
+	return grid;
+}
+
+unsigned int Grid::getGridHeight() const {
+	return gridHeight;
+}
+
+unsigned int Grid::getGridWidth() const {
+	return gridWidth;
+}
+
+unsigned int Grid::get_size() const {
+	return this->gridWidth * this->gridHeight;
 }

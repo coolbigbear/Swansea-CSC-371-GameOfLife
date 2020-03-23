@@ -53,4 +53,7 @@ public:
 	void merge(Grid other, unsigned int x0, unsigned int y0, bool alive_only);
 	Grid rotate(int rotation) const;
 	unsigned int get_size() const;
+	const std::vector<char> &getGrid() const;
+	unsigned int getGridHeight() const;
+	unsigned int getGridWidth() const;
 };
