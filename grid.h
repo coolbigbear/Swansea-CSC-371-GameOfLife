@@ -46,14 +46,11 @@ public:
     unsigned int get_dead_cells() const;
     void resize(unsigned int square_size);
     void resize(unsigned int width, unsigned int height);
-    void print_grid();
     Cell get(unsigned int x, unsigned int y) const;
     void set(unsigned int x, unsigned int y, Cell value);
     Cell & operator()(unsigned int x, unsigned int y);
     Cell operator()(unsigned int x, unsigned int y) const;
-
-	// How to draw an owl:
-    //      Step 1. Draw a circle.
-    //      Step 2. Draw the rest of the owl.
-
+	void merge(Grid other, unsigned int x0, unsigned int y0, bool alive_only);
+	Grid rotate(int rotation) const;
+	unsigned int get_size() const;
 };

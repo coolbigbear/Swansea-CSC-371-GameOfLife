@@ -645,7 +645,57 @@ void Grid::merge(Grid other, unsigned int x0, unsigned int y0, bool alive_only) 
  * @return
  *      Returns a copy of the grid that has been rotated.
  */
+Grid Grid::rotate(int rotation) const {
 
+	Grid g = (*this);
+
+	int rotation_direction = abs(rotation % 4 + 4) % 4;
+
+	if (rotation_direction == 0) {
+		//Grid doesn't change
+	} else if (rotation_direction == 3) {
+		// Top of grid facing to the left now
+		unsigned int k = 1;
+		unsigned int i = 0;
+		for (unsigned int j = 1; j <= this->get_height(); j++) {
+//			auto james = (this->gridWidth * j) - k;
+			g.grid[i] = this->grid[(this->gridWidth * j) - k];
+			i++;
+			if(i != this->get_size() && j == get_height()) {
+				j = 0;
+				k++;
+			}
+		}
+		auto temp = g.gridWidth;
+		g.gridWidth = g.gridHeight;
+		g.gridHeight = temp;
+	} else if (rotation_direction == 2) {
+		// Top of grid facing down
+		unsigned int j = 0;
+		for (auto i = this->grid.crbegin(); i != this->grid.crend(); ++i) {
+			g.grid[j] = *i;
+			j++;
+		}
+	} else {
+		// Top of grid facing to the right
+		int k = this->get_width() * -1;
+		unsigned int i = 0;
+		for (unsigned int j = this->get_height(); j>=1 ; j--) {
+//			auto bob = (this->gridWidth * j) + k;
+			g.grid[i] = this->grid[(this->gridWidth * j) + k];
+			i++;
+			if(i != this->get_size() && j == 1) {
+				j = this->get_height() + 1;
+				k++;
+			}
+		}
+		auto temp = g.gridWidth;
+		g.gridWidth = g.gridHeight;
+		g.gridHeight = temp;
+	}
+
+	return g;
+}
 
 /**
  * operator<<(output_stream, grid)
