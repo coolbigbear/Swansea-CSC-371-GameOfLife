@@ -103,6 +103,7 @@ World::World(unsigned int width, unsigned int gridHeight) {
  */
 World::World(Grid initial_state) {
 	current_state = std::move(initial_state);
+	next_state = Grid(this->current_state.get_width(), this->current_state.get_height());
 }
 
 /**
@@ -348,7 +349,60 @@ void World::resize(unsigned int new_width, unsigned int new_height) {
  * @return
  *      Returns the number of alive neighbours.
  */
+unsigned int World::count_neighbours(unsigned int x, unsigned int y, bool toroidal) {
 
+
+	int start_x;
+	int end_x;
+	int start_y;
+	int end_y;
+	unsigned int alive_cell_count = 0;
+
+	if (x == 0){
+		start_x = x;
+	} else{
+		start_x = x;
+		start_x--;
+	}
+	if (x + 1 > this->current_state.get_width() - 1){
+		end_x = x;
+		if (toroidal) {
+
+		}
+	} else{
+		end_x = x;
+		end_x++;
+	}
+
+	if (y == 0){
+		start_y = y;
+	} else{
+		start_y = y;
+		start_y--;
+	}
+	if (y + 1 > this->current_state.get_height() - 1){
+		end_y = y;
+	} else {
+		end_y = y;
+		end_y++;
+	}
+
+	for (unsigned int i = start_x; i <= end_x; i++) {
+		for (unsigned int j = start_y; j <= end_y; j++) {
+//			std::cout << "Current i: " << i << ", current j: " << j << std::endl;
+//			std::cout << (char) this->current_state(i, j) << std::endl;
+			if (this->current_state(i, j) == Cell::ALIVE) {
+				alive_cell_count++;
+			}
+		}
+	}
+
+	// Don't count actual Cell being looked at.
+	if (this->current_state(x, y) == Cell::ALIVE) {
+		alive_cell_count--;
+	}
+	return alive_cell_count;
+}
 
 /**
  * World::step(toroidal)
@@ -371,7 +425,22 @@ void World::resize(unsigned int new_width, unsigned int new_height) {
  *      wraps to the right edge and the top to the bottom. Defaults to false.
  */
 void World::step(bool toroidal) {
+	unsigned int neighbours;
+	for (unsigned int i = 0; i < this->current_state.get_width(); i++) {
+		for (unsigned int j = 0; j < this->current_state.get_height(); j++) {
+			neighbours = count_neighbours(i,j, toroidal);
 
+			if (neighbours == 2) {
+				this->next_state.set(i, j, this->current_state.get(i, j));
+			} else if (neighbours == 3) {
+				this->next_state.set(i, j, Cell::ALIVE);
+			} else {
+				this->next_state.set(i, j, Cell::DEAD);
+			}
+		}
+	}
+	this->current_state = this->next_state;
+	this->next_state = Grid(this->current_state.get_width(), this->current_state.get_height());
 }
 
 /**
@@ -387,3 +456,8 @@ void World::step(bool toroidal) {
  *      Optional parameter. If true then the step will consider the grid as a torus, where the left edge
  *      wraps to the right edge and the top to the bottom. Defaults to false.
  */
+void World::advance(unsigned int steps, bool toroidal) {
+	for (unsigned int i = 0; i < steps; i ++) {
+		step(toroidal);
+	}
+}

@@ -76,7 +76,7 @@ Grid::Grid(unsigned int gridSize) : Grid(gridSize, gridSize) {
  *      The height of the grid.
  */
 Grid::Grid(unsigned int width, unsigned int height) : gridHeight(height), gridWidth(width) {
-    std::vector<char> tempGrid;
+    std::vector<Cell> tempGrid;
     tempGrid.assign(width * height, Cell::DEAD);
     this->grid = tempGrid;
 }
@@ -273,7 +273,7 @@ void Grid::resize(unsigned int width, unsigned int height) {
 
 	// Create new grid to copy old grid in to
     unsigned int newSize = width * height;
-    std::vector<char> grid2;
+    std::vector<Cell > grid2;
     grid2.assign(newSize,Cell::DEAD);
 
     unsigned int j = 0;
@@ -438,7 +438,7 @@ void Grid::set(unsigned int x, unsigned int y, Cell value) {
  *      std::runtime_error or sub-class if x,y is not a valid coordinate within the grid.
  */
 Cell & Grid::operator()(unsigned int x, unsigned int y) {
-    return reinterpret_cast<Cell &>(this->grid[Grid::get_index(x, y)]);
+    return this->grid[Grid::get_index(x, y)];
 }
 
 /**
@@ -741,7 +741,7 @@ std::ostream & operator<<(std::ostream & output_stream, Grid& grid) {
 		if (j == 1) {
 			output_stream << "|";
 		}
-		output_stream << grid.getGrid()[i];
+		output_stream << (char) grid.getGrid()[i];
 		j++;
 		if (j > grid.get_width()) {
 			j = 1;
@@ -752,7 +752,7 @@ std::ostream & operator<<(std::ostream & output_stream, Grid& grid) {
 	return output_stream;
 }
 
-const std::vector<char> &Grid::getGrid() const {
+const std::vector<Cell> &Grid::getGrid() const {
 	return grid;
 }
 

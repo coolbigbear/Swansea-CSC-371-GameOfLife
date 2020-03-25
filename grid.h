@@ -29,7 +29,7 @@ enum Cell : char {
  */
 class Grid {
 private:
-    std::vector<char> grid;
+    std::vector<Cell> grid;
     unsigned int gridHeight;
     unsigned int gridWidth;
 
@@ -55,5 +55,5 @@ public:
 	Grid rotate(int rotation) const;
 	friend std::ostream & operator<<(std::ostream & output_stream, Grid& grid);
 	unsigned int get_size() const;
-	const std::vector<char> &getGrid() const;
+	const std::vector<Cell> &getGrid() const;
 };
