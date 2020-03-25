@@ -20,7 +20,7 @@
  * A Cell is a char limited to two named values for Cell::DEAD and Cell::ALIVE.
  */
 enum Cell : char {
-    DEAD = 'O',
+    DEAD = ' ',
     ALIVE = '#'
 };
 
@@ -51,11 +51,9 @@ public:
     Cell & operator()(unsigned int x, unsigned int y);
     Cell operator()(unsigned int x, unsigned int y) const;
 	Grid crop(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1);
-	void merge(Grid other, unsigned int x0, unsigned int y0, bool alive_only);
+	void merge(Grid other, unsigned int x0, unsigned int y0, bool alive_only = false);
 	Grid rotate(int rotation) const;
 	friend std::ostream & operator<<(std::ostream & output_stream, Grid& grid);
 	unsigned int get_size() const;
 	const std::vector<char> &getGrid() const;
-	unsigned int getGridHeight() const;
-	unsigned int getGridWidth() const;
 };

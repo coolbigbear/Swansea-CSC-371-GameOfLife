@@ -18,10 +18,12 @@
  *          - Moving off the left edge you appear on the right edge and vice versa.
  *          - Moving off the top edge you appear on the bottom edge and vice versa.
  *
- * @author YOUR_STUDENT_NUMBER
+ * @author ***REMOVED***
  * @date March, 2020
  */
 #include "world.h"
+
+#include <utility>
 
 // Include the minimal number of headers needed to support your implementation.
 // #include ...
@@ -37,7 +39,7 @@
  *      World world;
  *
  */
-
+World::World() : World(0) {}
 
 /**
  * World::World(square_size)
@@ -58,7 +60,7 @@
  * @param square_size
  *      The edge size to use for the width and gridHeight of the world.
  */
-
+World::World(unsigned int square_size) : World(square_size, square_size) {}
 
 /**
  * World::World(width, gridHeight)
@@ -75,7 +77,10 @@
  * @param height
  *      The gridHeight of the world.
  */
-
+World::World(unsigned int width, unsigned int gridHeight) {
+	current_state = Grid(width, gridHeight);
+	next_state = Grid(width, gridHeight);
+}
 
 /**
  * World::World(initial_state)
@@ -96,7 +101,9 @@
  * @param initial_state
  *      The state of the constructed world.
  */
-
+World::World(Grid initial_state) {
+	current_state = std::move(initial_state);
+}
 
 /**
  * World::get_width()
@@ -121,7 +128,9 @@
  * @return
  *      The width of the world.
  */
-
+unsigned int World::get_width() {
+	return current_state.get_width();
+}
 
 /**
  * World::get_height()
@@ -146,7 +155,9 @@
  * @return
  *      The gridHeight of the world.
  */
-
+unsigned int World::get_height() {
+	return current_state.get_height();
+}
 
 /**
  * World::get_total_cells()
@@ -171,7 +182,9 @@
  * @return
  *      The number of total cells.
  */
-
+unsigned int World::get_total_cells() {
+	return current_state.get_total_cells();
+}
 
 /**
  * World::get_alive_cells()
@@ -196,7 +209,9 @@
  * @return
  *      The number of alive cells.
  */
-
+unsigned int World::get_alive_cells() {
+	return current_state.get_alive_cells();
+}
 
 /**
  * World::get_dead_cells()
@@ -221,7 +236,9 @@
  * @return
  *      The number of dead cells.
  */
-
+unsigned int World::get_dead_cells() {
+	return current_state.get_dead_cells();
+}
 
 /**
  * World::get_state()
@@ -247,7 +264,9 @@
  * @return
  *      A reference to the current state.
  */
-
+const Grid& World::get_state() const {
+	return current_state;
+}
 
 /**
  * World::resize(square_size)
@@ -268,7 +287,9 @@
  * @param square_size
  *      The new edge size for both the width and gridHeight of the grid.
  */
-
+void World::resize(unsigned int square_size) {
+	resize(square_size, square_size);
+}
 
 /**
  * World::resize(new_width, new_height)
@@ -292,7 +313,9 @@
  * @param new_height
  *      The new gridHeight for the grid.
  */
-
+void World::resize(unsigned int new_width, unsigned int new_height) {
+	current_state.resize(new_width, new_height);
+}
 
 /**
  * World::count_neighbours(x, y, toroidal)
@@ -347,7 +370,9 @@
  *      Optional parameter. If true then the step will consider the grid as a torus, where the left edge
  *      wraps to the right edge and the top to the bottom. Defaults to false.
  */
+void World::step(bool toroidal) {
 
+}
 
 /**
  * World::advance(steps, toroidal)

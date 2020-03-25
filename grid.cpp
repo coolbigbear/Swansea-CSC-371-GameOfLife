@@ -743,7 +743,7 @@ std::ostream & operator<<(std::ostream & output_stream, Grid& grid) {
 		}
 		output_stream << grid.getGrid()[i];
 		j++;
-		if (j > grid.getGridWidth()) {
+		if (j > grid.get_width()) {
 			j = 1;
 			output_stream << "|" << std::endl;
 		}
@@ -754,14 +754,6 @@ std::ostream & operator<<(std::ostream & output_stream, Grid& grid) {
 
 const std::vector<char> &Grid::getGrid() const {
 	return grid;
-}
-
-unsigned int Grid::getGridHeight() const {
-	return gridHeight;
-}
-
-unsigned int Grid::getGridWidth() const {
-	return gridWidth;
 }
 
 unsigned int Grid::get_size() const {
