@@ -26,6 +26,7 @@
 // #include ...
 #include "zoo.h"
 #include "grid.h"
+#include <fstream>
 
 /**
  * Zoo::glider()
@@ -48,7 +49,19 @@
  *      Returns a Grid containing a glider.
  */
 Grid Zoo::glider() {
+	Grid glider = Grid(3);
+	// Base
+	glider.set(0,0, Cell::ALIVE);
+	glider.set(1,0, Cell::ALIVE);
+	glider.set(2,0, Cell::ALIVE);
 
+	// Middle
+	glider.set(2,1, Cell::ALIVE);
+
+	// Top
+	glider.set(1,3, Cell::ALIVE);
+
+	return glider;
 }
 
 /**
@@ -72,7 +85,20 @@ Grid Zoo::glider() {
  *      Returns a Grid containing a r-pentomino.
  */
 Grid Zoo::r_pentomino() {
+	Grid r_pentomino = Grid(3);
 
+	// Bottom
+	r_pentomino.set(1,0, Cell::ALIVE);
+
+	// Middle
+	r_pentomino.set(0,1, Cell::ALIVE);
+	r_pentomino.set(1,1, Cell::ALIVE);
+
+	// Top
+	r_pentomino.set(1,2, Cell::ALIVE);
+	r_pentomino.set(2,2, Cell::ALIVE);
+
+	return r_pentomino;
 }
 
 /**
@@ -97,6 +123,26 @@ Grid Zoo::r_pentomino() {
  *      Returns a grid containing a light weight spaceship.
  */
 Grid Zoo::light_weight_spaceship() {
+	Grid light_weight_spaceship = Grid(5,4);
+
+	// Bottom
+	light_weight_spaceship.set(0,0,Cell::ALIVE);
+	light_weight_spaceship.set(1,0,Cell::ALIVE);
+	light_weight_spaceship.set(2,0,Cell::ALIVE);
+	light_weight_spaceship.set(3,0,Cell::ALIVE);
+
+	// Bottom middle
+	light_weight_spaceship.set(0,1,Cell::ALIVE);
+	light_weight_spaceship.set(4,1,Cell::ALIVE);
+
+	// Top middle
+	light_weight_spaceship.set(0,2,Cell::ALIVE);
+
+	// Top
+	light_weight_spaceship.set(1,3,Cell::ALIVE);
+	light_weight_spaceship.set(4,3,Cell::ALIVE);
+
+	return light_weight_spaceship;
 
 }
 
@@ -125,7 +171,49 @@ Grid Zoo::light_weight_spaceship() {
  *          - The character for a cell is not the ALIVE or DEAD character.
  */
 Grid Zoo::load_ascii(std::string path) {
+	std::ifstream input(path);
 
+	if (!input) {
+		throw std::runtime_error("File: " + path + " not found");
+	}
+
+	char c;
+	unsigned int width, height;
+	input >> width >> height;
+	input.get(c);
+
+	if (width < 0 || height < 0) {
+		throw std::runtime_error("The parsed width or gridHeight is not a positive integer");
+	} else if (c != '\n') {
+		throw std::runtime_error("Newline characters are not found when expected during parsing");
+	}
+
+	Grid grid = Grid(width, height);
+
+	unsigned int x = 0;
+	unsigned int y = 0;
+	unsigned int k = 0;
+	while (input.get(c)) {
+		if (c != '\n' && k != width) { // Only read if new lines at end of width of grid
+			if (c == Cell::ALIVE || c == Cell::DEAD) { // Check if char is in enum
+				grid.set(x, y, static_cast<Cell>(c));
+				x++;
+				k++;
+				if (x == width) { // Reached new line reset variables, read new line char
+					y++;
+					k = 0;
+					x = 0;
+					input.get();
+				}
+			} else {
+				throw std::runtime_error("The character for a cell is not the ALIVE or DEAD character");
+			}
+		} else {
+			throw std::runtime_error("Newline characters are not found when expected during parsing");
+		}
+	}
+
+	return grid;
 }
 
 /**
