@@ -28,6 +28,7 @@ private:
 	Grid next_state;
 
 	unsigned int count_neighbours(unsigned int x, unsigned int y, bool toroidal);
+	bool is_alive(unsigned int x, unsigned int y);
 
 public:
 	World();

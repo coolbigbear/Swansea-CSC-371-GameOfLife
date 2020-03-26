@@ -472,9 +472,7 @@ Cell & Grid::operator()(unsigned int x, unsigned int y) {
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
 Cell Grid::operator()(unsigned int x, unsigned int y) const {
-	auto lmao = Cell(this->grid[Grid::get_index(x, y)]);
-	return lmao;
-
+	return Cell(this->grid[Grid::get_index(x, y)]);
 }
 
 /**

@@ -351,57 +351,69 @@ void World::resize(unsigned int new_width, unsigned int new_height) {
  */
 unsigned int World::count_neighbours(unsigned int x, unsigned int y, bool toroidal) {
 
-
-	int start_x;
-	int end_x;
-	int start_y;
-	int end_y;
 	unsigned int alive_cell_count = 0;
+	unsigned int height = this->current_state.get_height();
+	unsigned int width = this->current_state.get_width();
 
-	if (x == 0){
-		start_x = x;
-	} else{
-		start_x = x;
-		start_x--;
-	}
-	if (x + 1 > this->current_state.get_width() - 1){
-		end_x = x;
-		if (toroidal) {
-
-		}
-	} else{
-		end_x = x;
-		end_x++;
-	}
-
-	if (y == 0){
-		start_y = y;
-	} else{
-		start_y = y;
-		start_y--;
-	}
-	if (y + 1 > this->current_state.get_height() - 1){
-		end_y = y;
+	if (toroidal) {
+		alive_cell_count = is_alive(x, ((y - 1) + height) % width) + // above
+						 is_alive(x, ((y + 1) + height) % height) + // below
+						 is_alive(((x - 1) + width) % width, y) + // left
+						 is_alive(((x + 1) + width) % width, y) + // right
+						 is_alive(((x - 1) + width) % width, ((y - 1) + height) % height) + // top left
+						 is_alive(((x - 1) + width) % width, ((y + 1) + height) % height) + // bottom left
+						 is_alive(((x + 1) + width) % width, ((y - 1) + height) % height) + // top right
+						 is_alive(((x + 1) + width) % width, ((y + 1) + height) % height); // bottom right
 	} else {
-		end_y = y;
-		end_y++;
-	}
 
-	for (unsigned int i = start_x; i <= end_x; i++) {
-		for (unsigned int j = start_y; j <= end_y; j++) {
-//			std::cout << "Current i: " << i << ", current j: " << j << std::endl;
-//			std::cout << (char) this->current_state(i, j) << std::endl;
-			if (this->current_state(i, j) == Cell::ALIVE) {
-				alive_cell_count++;
+		int start_x, end_x;
+		int start_y, end_y;
+
+		if (x == 0) {
+			start_x = x;
+		} else {
+			start_x = x;
+			start_x--;
+		}
+		if (x + 1 > this->current_state.get_width() - 1) {
+			end_x = x;
+		} else {
+			end_x = x;
+			end_x++;
+		}
+
+		if (y == 0) {
+			start_y = y;
+		} else {
+			start_y = y;
+			start_y--;
+		}
+		if (y + 1 > this->current_state.get_height() - 1) {
+			end_y = y;
+		} else {
+			end_y = y;
+			end_y++;
+		}
+
+		for (int i = start_x; i <= end_x; i++) {
+			for (int j = start_y; j <= end_y; j++) {
+				if (this->current_state(i, j) == Cell::ALIVE) {
+					alive_cell_count++;
+				}
 			}
 		}
+
+		// Don't count actual Cell being looked at.
+		if (this->current_state(x, y) == Cell::ALIVE) {
+			alive_cell_count--;
+		}
 	}
 
-	// Don't count actual Cell being looked at.
-	if (this->current_state(x, y) == Cell::ALIVE) {
-		alive_cell_count--;
-	}
 	return alive_cell_count;
+}
+
+bool World::is_alive(unsigned int x, unsigned int y) {
+	return this->current_state.get(x, y) == Cell::ALIVE;
 }
 
 /**

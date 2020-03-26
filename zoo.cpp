@@ -18,13 +18,14 @@
  *                padded with zero or more 0 bits.
  *              - a 0 bit should be considered Cell::DEAD, a 1 bit should be considered Cell::ALIVE.
  *
- * @author YOUR_STUDENT_NUMBER
+ * @author ***REMOVED***
  * @date March, 2020
  */
-#include "zoo.h"
 
 // Include the minimal number of headers needed to support your implementation.
 // #include ...
+#include "zoo.h"
+#include "grid.h"
 
 /**
  * Zoo::glider()
@@ -46,7 +47,9 @@
  * @return
  *      Returns a Grid containing a glider.
  */
+Grid Zoo::glider() {
 
+}
 
 /**
  * Zoo::r_pentomino()
@@ -68,7 +71,9 @@
  * @return
  *      Returns a Grid containing a r-pentomino.
  */
+Grid Zoo::r_pentomino() {
 
+}
 
 /**
  * Zoo::light_weight_spaceship()
@@ -91,7 +96,9 @@
  * @return
  *      Returns a grid containing a light weight spaceship.
  */
+Grid Zoo::light_weight_spaceship() {
 
+}
 
 /**
  * Zoo::load_ascii(path)
@@ -117,7 +124,9 @@
  *          - Newline characters are not found when expected during parsing.
  *          - The character for a cell is not the ALIVE or DEAD character.
  */
+Grid Zoo::load_ascii(std::string path) {
 
+}
 
 /**
  * Zoo::save_ascii(path, grid)
@@ -147,7 +156,9 @@
  * @throws
  *      Throws std::runtime_error or sub-class if the file cannot be opened.
  */
+void Zoo::save_ascii(std::string path, Grid grid) {
 
+}
 
 /**
  * Zoo::load_binary(path)
@@ -171,7 +182,9 @@
  *          - The file cannot be opened.
  *          - The file ends unexpectedly.
  */
+Grid Zoo::load_binary(std::string path) {
 
+}
 
 /**
  * Zoo::save_binary(path, grid)
@@ -201,4 +214,6 @@
  * @throws
  *      Throws std::runtime_error or sub-class if the file cannot be opened.
  */
+void Zoo::save_binary(std::string path, Grid grid) {
 
+}
