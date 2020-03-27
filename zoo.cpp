@@ -27,6 +27,7 @@
 #include "zoo.h"
 #include "grid.h"
 #include <fstream>
+#include <bitset>
 
 /**
  * Zoo::glider()
@@ -170,7 +171,7 @@ Grid Zoo::light_weight_spaceship() {
  *          - Newline characters are not found when expected during parsing.
  *          - The character for a cell is not the ALIVE or DEAD character.
  */
-Grid Zoo::load_ascii(std::string path) {
+Grid Zoo::load_ascii(const std::string& path) {
 	std::ifstream input(path);
 
 	if (!input) {
@@ -180,7 +181,7 @@ Grid Zoo::load_ascii(std::string path) {
 	char c;
 	unsigned int width, height;
 	input >> width >> height;
-	input.get(c);
+	input.get(c); // Read new line char after width and height
 
 	if (width < 0 || height < 0) {
 		throw std::runtime_error("The parsed width or gridHeight is not a positive integer");
@@ -199,7 +200,7 @@ Grid Zoo::load_ascii(std::string path) {
 				grid.set(x, y, static_cast<Cell>(c));
 				x++;
 				k++;
-				if (x == width) { // Reached new line reset variables, read new line char
+				if (x == width) { // Reached end of line, reset variables, read new line char
 					y++;
 					k = 0;
 					x = 0;
@@ -244,8 +245,31 @@ Grid Zoo::load_ascii(std::string path) {
  * @throws
  *      Throws std::runtime_error or sub-class if the file cannot be opened.
  */
-void Zoo::save_ascii(std::string path, Grid grid) {
+void Zoo::save_ascii(const std::string& path, const Grid& grid) {
+	std::ofstream file(path);
+	if (file.is_open()) {
 
+		// Add width and height at the top with new line char
+		file << grid.get_width() << " " << grid.get_height() << "\n";
+
+		// Read array from top left corner going down and across and add char by char to file
+		for (unsigned int i = 0; i < grid.get_width(); i++) {
+			for (unsigned int j = 0; j < grid.get_height(); j++) {
+
+				char c = (char) grid.get(j, i);
+				// If end of row add char followed by new line char
+				if (j == grid.get_width() - 1) {
+					file << c << "\n";
+					break;
+				} else {
+					file << c;
+				}
+			}
+		}
+	} else {
+		throw std::runtime_error("The file cannot be opened");
+	}
+	file.close();
 }
 
 /**
@@ -270,8 +294,52 @@ void Zoo::save_ascii(std::string path, Grid grid) {
  *          - The file cannot be opened.
  *          - The file ends unexpectedly.
  */
-Grid Zoo::load_binary(std::string path) {
+Grid Zoo::load_binary(const std::string& path) {
 
+	std::ifstream file(path, std::ios::binary);
+	if(!file) {
+		throw std::runtime_error("File cannot be opened");
+	}
+
+	unsigned int width, height;
+	file.read(reinterpret_cast<char *>(&width), sizeof(int));
+	file.read(reinterpret_cast<char *>(&height), sizeof(int));
+
+	Grid grid = Grid(width, height);
+	unsigned int x = 0, y = 0, cell_count = 0;
+	unsigned int grid_size = (width * height) - 1; // -1 since grid starts from 0 not 1
+
+	while(cell_count < grid_size) {
+		char byte;
+		file.read(&byte, 1);
+		// Check for unexpected file ending
+		if (!file) {
+			throw std::runtime_error("File ends unexpectedly");
+		}
+
+		std::bitset<8> bits(byte);
+		// Loop through byte and set Cell
+		for (int bit_no = 0; bit_no <= 7; bit_no++) {
+			// Set the cell_count depending on the bit value
+			if (bits[bit_no] == 1) {
+				grid.set(x, y, Cell::ALIVE);
+			} else {
+				grid.set(x, y, Cell::DEAD);
+			}
+
+			if(x > width - 1) { // End of row, increment height
+				x = 0;
+				y++;
+				if(y == height) { // Don't look at extra bytes that are padded
+					break;
+				}
+			}
+			x++;
+			cell_count++;
+		}
+	}
+
+	return grid;
 }
 
 /**
@@ -303,5 +371,13 @@ Grid Zoo::load_binary(std::string path) {
  *      Throws std::runtime_error or sub-class if the file cannot be opened.
  */
 void Zoo::save_binary(std::string path, Grid grid) {
+	std::ofstream file(path, std::ios::out | std::ios::binary);
+	if(!file) {
+		throw std::runtime_error("File cannot be opened");
+	}
+
+
+	std::bitset<grid.get_size()> bits(byte);
+
 
 }

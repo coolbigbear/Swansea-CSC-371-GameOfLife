@@ -676,7 +676,7 @@ Grid Grid::rotate(int rotation) const {
 		}
 	} else {
 		// Top of grid facing to the right
-		int k = this->get_width() * -1;
+		int k = this->get_width() * - 1;
 		unsigned int i = 0;
 		for (unsigned int j = this->get_height(); j>=1 ; j--) {
 //			auto bob = (this->gridWidth * j) + k;
