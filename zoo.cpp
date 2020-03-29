@@ -298,7 +298,7 @@ Grid Zoo::load_binary(const std::string& path) {
 
 	std::ifstream file(path, std::ios::binary);
 	if(!file) {
-		throw std::runtime_error("File cannot be opened");
+		throw std::runtime_error("File cannot be opened!\nPath: " + path);
 	}
 
 	unsigned int width, height;
@@ -310,7 +310,7 @@ Grid Zoo::load_binary(const std::string& path) {
 	unsigned int grid_size = (width * height) - 1; // -1 since grid starts from 0 not 1
 
 	while(cell_count < grid_size) {
-		char byte;
+		char byte = 0;
 		file.read(&byte, 1);
 		// Check for unexpected file ending
 		if (!file) {
@@ -318,6 +318,8 @@ Grid Zoo::load_binary(const std::string& path) {
 		}
 
 		std::bitset<8> bits(byte);
+		//TODO replace with char  bit manipulation.
+
 		// Loop through byte and set Cell
 		for (int bit_no = 0; bit_no <= 7; bit_no++) {
 			// Set the cell_count depending on the bit value
@@ -370,14 +372,52 @@ Grid Zoo::load_binary(const std::string& path) {
  * @throws
  *      Throws std::runtime_error or sub-class if the file cannot be opened.
  */
-void Zoo::save_binary(std::string path, Grid grid) {
+void Zoo::save_binary(const std::string& path, const Grid& grid) {
 	std::ofstream file(path, std::ios::out | std::ios::binary);
+
 	if(!file) {
-		throw std::runtime_error("File cannot be opened");
+		throw std::runtime_error("File cannot be opened!\nPath: " + path);
 	}
 
+	// Grab width and height
+	unsigned int width = grid.get_width();
+	unsigned int height = grid.get_height();
 
-	std::bitset<grid.get_size()> bits(byte);
+	// Write to file as 4 bytes
+	file.write((char*)&width,4);
+	file.write((char*)&height,4);
 
+	char byte = 0;
+	int bit_count = 0;
+	int cell_count = 0;
 
+	// Loop through grid, starting in top left corner going across then down
+	for (unsigned int y = 0; y < height; y++) {
+		for (unsigned int x = 0; x < width; x++) {
+
+			// Reached end of byte
+			if (bit_count > 7) {
+				// Save byte to file
+				file.write(&byte, 1);
+				// Reset bit count
+				bit_count = 0;
+				// Reset byte;
+				byte = 0;
+			}
+
+			// Flip bit in byte to 1 if cell alive
+			if(grid.get(x, y) == Cell::ALIVE) {
+				byte += (1 << bit_count);
+			}
+
+			// Increment variables
+			bit_count++;
+			cell_count++;
+		}
+	}
+
+	// Pad file with 0 bits
+	if (bit_count > 0) {
+		file.write(&byte, 1);
+	}
 }
