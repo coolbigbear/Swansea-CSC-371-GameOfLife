@@ -56,4 +56,5 @@ public:
 	friend std::ostream & operator<<(std::ostream & output_stream, Grid& grid);
 	unsigned int get_size() const;
 	const std::vector<Cell> &getGrid() const;
+	void check_if_in_bounds(unsigned int x, const unsigned int y) const;
 };

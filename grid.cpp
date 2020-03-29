@@ -12,6 +12,7 @@
  * @date March, 2020
  */
 #include "grid.h"
+#include <sstream>
 #include <vector>
 #include <iostream>
 
@@ -368,6 +369,7 @@ unsigned int Grid::get_index(unsigned int x, unsigned int y) const {
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
 Cell Grid::get(unsigned int x, unsigned int y) const {
+	check_if_in_bounds(x, y);
     return (*this)(x, y);
 }
 
@@ -398,8 +400,8 @@ Cell Grid::get(unsigned int x, unsigned int y) const {
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
 void Grid::set(unsigned int x, unsigned int y, Cell value) {
-    Cell &cell = Grid::operator()(x, y);
-    cell = value;
+	check_if_in_bounds(x, y);
+	Grid::operator()(x, y) = value;
 }
 
 /**
@@ -438,7 +440,8 @@ void Grid::set(unsigned int x, unsigned int y, Cell value) {
  *      std::runtime_error or sub-class if x,y is not a valid coordinate within the grid.
  */
 Cell & Grid::operator()(unsigned int x, unsigned int y) {
-    return this->grid[Grid::get_index(x, y)];
+	check_if_in_bounds(x, y);
+	return this->grid[Grid::get_index(x, y)];
 }
 
 /**
@@ -472,6 +475,7 @@ Cell & Grid::operator()(unsigned int x, unsigned int y) {
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
 Cell Grid::operator()(unsigned int x, unsigned int y) const {
+	check_if_in_bounds(x, y);
 	return Cell(this->grid[Grid::get_index(x, y)]);
 }
 
@@ -510,6 +514,13 @@ Cell Grid::operator()(unsigned int x, unsigned int y) const {
  *      or if the crop window has a negative size.
  */
 Grid Grid::crop(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1) {
+
+	check_if_in_bounds(x0, y0);
+	check_if_in_bounds(x1, y1);
+
+	if (y0 > y1 || x0 > x1) {
+		throw std::invalid_argument("Crop window has a negative size.");
+	}
 
 	unsigned int width = x1 - x0;
 	unsigned int height = y1 - y0;
@@ -583,8 +594,16 @@ Grid Grid::crop(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int 
  *      std::exception or sub-class if the other grid being placed does not fit within the bounds of the current grid.
  */
 void Grid::merge(Grid other, unsigned int x0, unsigned int y0, bool alive_only) {
+
+	check_if_in_bounds(x0, y0);
+
 	unsigned int width = other.gridWidth;
 	unsigned int height = other.gridHeight;
+
+	if (width + x0 > this->get_width() || height + y0 > this->get_height()) {
+		throw std::invalid_argument("Grid being placed does not fit within the bounds of the current grid");
+	}
+
 	unsigned int j;
 	unsigned int i = 0;
 	unsigned int k = 0;
@@ -756,4 +775,12 @@ const std::vector<Cell> &Grid::getGrid() const {
 
 unsigned int Grid::get_size() const {
 	return this->gridWidth * this->gridHeight;
+}
+
+void Grid::check_if_in_bounds(unsigned int x, unsigned int y) const {
+	if (x > this->get_width() || y > this->get_height() || x < 0 || y < 0) {
+		std::stringstream ss;
+		ss << x  << ", " << y << " is not a valid coordinate within the grid";
+		throw std::out_of_range(ss.str());
+	}
 }

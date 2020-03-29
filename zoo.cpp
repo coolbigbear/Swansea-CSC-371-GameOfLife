@@ -51,16 +51,17 @@
  */
 Grid Zoo::glider() {
 	Grid glider = Grid(3);
+
 	// Base
-	glider.set(0,0, Cell::ALIVE);
-	glider.set(1,0, Cell::ALIVE);
-	glider.set(2,0, Cell::ALIVE);
+	glider.set(0,2, Cell::ALIVE);
+	glider.set(1,2, Cell::ALIVE);
+	glider.set(2,2, Cell::ALIVE);
 
 	// Middle
 	glider.set(2,1, Cell::ALIVE);
 
 	// Top
-	glider.set(1,3, Cell::ALIVE);
+	glider.set(1,0, Cell::ALIVE);
 
 	return glider;
 }
@@ -89,15 +90,15 @@ Grid Zoo::r_pentomino() {
 	Grid r_pentomino = Grid(3);
 
 	// Bottom
-	r_pentomino.set(1,0, Cell::ALIVE);
+	r_pentomino.set(1,2, Cell::ALIVE);
 
 	// Middle
 	r_pentomino.set(0,1, Cell::ALIVE);
 	r_pentomino.set(1,1, Cell::ALIVE);
 
 	// Top
-	r_pentomino.set(1,2, Cell::ALIVE);
-	r_pentomino.set(2,2, Cell::ALIVE);
+	r_pentomino.set(1,0, Cell::ALIVE);
+	r_pentomino.set(2,0, Cell::ALIVE);
 
 	return r_pentomino;
 }
@@ -127,21 +128,21 @@ Grid Zoo::light_weight_spaceship() {
 	Grid light_weight_spaceship = Grid(5,4);
 
 	// Bottom
-	light_weight_spaceship.set(0,0,Cell::ALIVE);
-	light_weight_spaceship.set(1,0,Cell::ALIVE);
-	light_weight_spaceship.set(2,0,Cell::ALIVE);
-	light_weight_spaceship.set(3,0,Cell::ALIVE);
+	light_weight_spaceship.set(0,3,Cell::ALIVE);
+	light_weight_spaceship.set(1,3,Cell::ALIVE);
+	light_weight_spaceship.set(2,3,Cell::ALIVE);
+	light_weight_spaceship.set(3,3,Cell::ALIVE);
 
 	// Bottom middle
-	light_weight_spaceship.set(0,1,Cell::ALIVE);
-	light_weight_spaceship.set(4,1,Cell::ALIVE);
+	light_weight_spaceship.set(0,2,Cell::ALIVE);
+	light_weight_spaceship.set(4,2,Cell::ALIVE);
 
 	// Top middle
-	light_weight_spaceship.set(0,2,Cell::ALIVE);
+	light_weight_spaceship.set(0,1,Cell::ALIVE);
 
 	// Top
-	light_weight_spaceship.set(1,3,Cell::ALIVE);
-	light_weight_spaceship.set(4,3,Cell::ALIVE);
+	light_weight_spaceship.set(1,0,Cell::ALIVE);
+	light_weight_spaceship.set(4,0,Cell::ALIVE);
 
 	return light_weight_spaceship;
 
@@ -253,12 +254,12 @@ void Zoo::save_ascii(const std::string& path, const Grid& grid) {
 		file << grid.get_width() << " " << grid.get_height() << "\n";
 
 		// Read array from top left corner going down and across and add char by char to file
-		for (unsigned int i = 0; i < grid.get_width(); i++) {
-			for (unsigned int j = 0; j < grid.get_height(); j++) {
+		for (unsigned int x = 0; x < grid.get_width(); x++) {
+			for (unsigned int y = 0; y < grid.get_height(); y++) {
 
-				char c = (char) grid.get(j, i);
+				char c = (char) grid.get(x, y);
 				// If end of row add char followed by new line char
-				if (j == grid.get_width() - 1) {
+				if (y == grid.get_width() - 1) {
 					file << c << "\n";
 					break;
 				} else {
