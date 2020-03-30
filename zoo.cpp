@@ -28,6 +28,7 @@
 #include "grid.h"
 #include <fstream>
 #include <bitset>
+#include <sstream>
 
 /**
  * Zoo::glider()
@@ -185,7 +186,11 @@ Grid Zoo::load_ascii(const std::string& path) {
 	input.get(c); // Read new line char after width and height
 
 	if (width < 0 || height < 0) {
-		throw std::runtime_error("The parsed width or gridHeight is not a positive integer");
+		std::stringstream ss;
+		ss << "The parsed width or gridHeight is not a positive integer:" <<
+		" width = " << width <<
+		" height = " << height;
+		throw std::runtime_error(ss.str());
 	} else if (c != '\n') {
 		throw std::runtime_error("Newline characters are not found when expected during parsing");
 	}
@@ -194,16 +199,13 @@ Grid Zoo::load_ascii(const std::string& path) {
 
 	unsigned int x = 0;
 	unsigned int y = 0;
-	unsigned int k = 0;
 	while (input.get(c)) {
-		if (c != '\n' && k != width) { // Only read if new lines at end of width of grid
+		if (c != '\n' && x != width) { // Only read if new line "\n" at the end of width of the grid
 			if (c == Cell::ALIVE || c == Cell::DEAD) { // Check if char is in enum
 				grid.set(x, y, static_cast<Cell>(c));
 				x++;
-				k++;
 				if (x == width) { // Reached end of line, reset variables, read new line char
 					y++;
-					k = 0;
 					x = 0;
 					input.get();
 				}
@@ -248,15 +250,14 @@ Grid Zoo::load_ascii(const std::string& path) {
  */
 void Zoo::save_ascii(const std::string& path, Grid& grid) {
 	std::ofstream file(path);
-	if (file.is_open()) {
 
+	if (file.is_open()) {
 		// Add width and height at the top with new line char
 		file << grid.get_width() << " " << grid.get_height() << "\n";
 
-		// Read array from top left corner going down and across and add char by char to file
+		// Read array from top left corner going across then down and add char by char to file
 		for (unsigned int y = 0; y < grid.get_height(); y++) {
 			for (unsigned int x = 0; x < grid.get_width(); x++) {
-
 				char c = (char) grid.get(x, y);
 				// If end of row add char followed by new line char
 				if (x >= grid.get_width() - 1) {
@@ -303,40 +304,41 @@ Grid Zoo::load_binary(const std::string& path) {
 	}
 
 	unsigned int width, height;
-	file.read(reinterpret_cast<char *>(&width), sizeof(int));
-	file.read(reinterpret_cast<char *>(&height), sizeof(int));
+	file.read(reinterpret_cast<char *>(&width), 4);
+	file.read(reinterpret_cast<char *>(&height), 4);
 
 	Grid grid = Grid(width, height);
-	unsigned int x = 0, y = 0, cell_count = 0;
+	unsigned int x = 0, y = 0;
 	unsigned int grid_size = (width * height) - 1; // -1 since grid starts from 0 not 1
 
-	while(cell_count < grid_size) {
+	for (unsigned int cell_count = 0; cell_count < grid_size;) {
 		char byte = 0;
 		file.read(&byte, 1);
-		// Check for unexpected file ending
+
+		// Check if file ends unexpectedly
 		if (!file) {
 			throw std::runtime_error("File ends unexpectedly");
 		}
 
-		std::bitset<8> bits(byte);
-		//TODO replace with char  bit manipulation.
-
-		// Loop through byte and set Cell
+		// Loop through byte and set Cell to dead or alive
 		for (int bit_no = 0; bit_no <= 7; bit_no++) {
+
+			// Reached end of row, increment height
+			if(x >= width) {
+				x = 0;
+				y++;
+				if(y >= height) { // Read whole grid, break
+					break;
+				}
+			}
+
 			// Set the cell_count depending on the bit value
-			if (bits[bit_no] == 1) {
+			if(((byte >> bit_no) & 1) == 1) {
 				grid.set(x, y, Cell::ALIVE);
 			} else {
 				grid.set(x, y, Cell::DEAD);
 			}
 
-			if(x > width - 1) { // End of row, increment height
-				x = 0;
-				y++;
-				if(y == height) { // Don't look at extra bytes that are padded
-					break;
-				}
-			}
 			x++;
 			cell_count++;
 		}
@@ -381,8 +383,8 @@ void Zoo::save_binary(const std::string& path, const Grid& grid) {
 	}
 
 	// Grab width and height
-	unsigned int width = grid.get_width();
-	unsigned int height = grid.get_height();
+	const unsigned int width = grid.get_width();
+	const unsigned int height = grid.get_height();
 
 	// Write to file as 4 bytes
 	file.write((char*)&width,4);
@@ -406,7 +408,7 @@ void Zoo::save_binary(const std::string& path, const Grid& grid) {
 				byte = 0;
 			}
 
-			// Flip bit in byte to 1 if cell alive
+			// Flip bit in byte variable to 1 if cell alive
 			if(grid.get(x, y) == Cell::ALIVE) {
 				byte += (1 << bit_count);
 			}
@@ -417,7 +419,7 @@ void Zoo::save_binary(const std::string& path, const Grid& grid) {
 		}
 	}
 
-	// Pad file with 0 bits
+	// Pad file with 0 bits if needed
 	if (bit_count > 0) {
 		file.write(&byte, 1);
 	}
