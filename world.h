@@ -32,17 +32,17 @@ private:
 
 public:
 	World();
-	World(unsigned int square_size);
+	explicit World(unsigned int square_size);
 	World(unsigned int width, unsigned int gridHeight);
-	World(Grid initial_state);
+	explicit World(Grid initial_state);
 
-	unsigned int get_width();
-	unsigned int get_height();
-	unsigned int get_total_cells();
-	unsigned int get_alive_cells();
-	unsigned int get_dead_cells();
-
+	unsigned int get_width() const;
+	unsigned int get_height() const;
+	unsigned int get_total_cells() const;
+	unsigned int get_alive_cells() const;
+	unsigned int get_dead_cells() const;
 	const Grid& get_state() const;
+
 	void resize(unsigned int square_size);
 	void resize(unsigned int new_width, unsigned int new_height);
 

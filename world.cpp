@@ -23,7 +23,6 @@
  */
 #include "world.h"
 
-#include <utility>
 
 // Include the minimal number of headers needed to support your implementation.
 // #include ...
@@ -60,7 +59,7 @@ World::World() : World(0) {}
  * @param square_size
  *      The edge size to use for the width and gridHeight of the world.
  */
-World::World(unsigned int square_size) : World(square_size, square_size) {}
+World::World(const unsigned int square_size) : World(square_size, square_size) {}
 
 /**
  * World::World(width, gridHeight)
@@ -77,9 +76,9 @@ World::World(unsigned int square_size) : World(square_size, square_size) {}
  * @param height
  *      The gridHeight of the world.
  */
-World::World(unsigned int width, unsigned int gridHeight) {
-	current_state = Grid(width, gridHeight);
-	next_state = Grid(width, gridHeight);
+World::World(const unsigned int width, const unsigned int gridHeight) {
+	this->current_state = Grid(width, gridHeight);
+	this->next_state = Grid(width, gridHeight);
 }
 
 /**
@@ -102,8 +101,8 @@ World::World(unsigned int width, unsigned int gridHeight) {
  *      The state of the constructed world.
  */
 World::World(Grid initial_state) {
-	current_state = std::move(initial_state);
-	next_state = Grid(this->current_state.get_width(), this->current_state.get_height());
+	this->current_state = std::move(initial_state);
+	this->next_state = Grid(this->current_state.get_width(), this->current_state.get_height());
 }
 
 /**
@@ -129,7 +128,7 @@ World::World(Grid initial_state) {
  * @return
  *      The width of the world.
  */
-unsigned int World::get_width() {
+unsigned int World::get_width() const {
 	return current_state.get_width();
 }
 
@@ -156,7 +155,7 @@ unsigned int World::get_width() {
  * @return
  *      The gridHeight of the world.
  */
-unsigned int World::get_height() {
+unsigned int World::get_height() const {
 	return current_state.get_height();
 }
 
@@ -183,7 +182,7 @@ unsigned int World::get_height() {
  * @return
  *      The number of total cells.
  */
-unsigned int World::get_total_cells() {
+unsigned int World::get_total_cells() const {
 	return current_state.get_total_cells();
 }
 
@@ -210,7 +209,7 @@ unsigned int World::get_total_cells() {
  * @return
  *      The number of alive cells.
  */
-unsigned int World::get_alive_cells() {
+unsigned int World::get_alive_cells() const {
 	return current_state.get_alive_cells();
 }
 
@@ -237,7 +236,7 @@ unsigned int World::get_alive_cells() {
  * @return
  *      The number of dead cells.
  */
-unsigned int World::get_dead_cells() {
+unsigned int World::get_dead_cells() const {
 	return current_state.get_dead_cells();
 }
 
@@ -288,7 +287,7 @@ const Grid& World::get_state() const {
  * @param square_size
  *      The new edge size for both the width and gridHeight of the grid.
  */
-void World::resize(unsigned int square_size) {
+void World::resize(const unsigned int square_size) {
 	resize(square_size, square_size);
 }
 
@@ -314,7 +313,7 @@ void World::resize(unsigned int square_size) {
  * @param new_height
  *      The new gridHeight for the grid.
  */
-void World::resize(unsigned int new_width, unsigned int new_height) {
+void World::resize(const unsigned int new_width, const unsigned int new_height) {
 	current_state.resize(new_width, new_height);
 }
 
@@ -366,8 +365,8 @@ unsigned int World::count_neighbours(unsigned int x, unsigned int y, bool toroid
 						 is_alive(((x + 1) + width) % width, ((y + 1) + height) % height); // bottom right
 	} else {
 
-		int start_x, end_x;
-		int start_y, end_y;
+		unsigned int start_x, end_x;
+		unsigned int start_y, end_y;
 
 		if (x == 0) {
 			start_x = x;
@@ -395,8 +394,8 @@ unsigned int World::count_neighbours(unsigned int x, unsigned int y, bool toroid
 			end_y++;
 		}
 
-		for (int i = start_x; i <= end_x; i++) {
-			for (int j = start_y; j <= end_y; j++) {
+		for (unsigned int i = start_x; i <= end_x; i++) {
+			for (unsigned int j = start_y; j <= end_y; j++) {
 				if (this->current_state(i, j) == Cell::ALIVE) {
 					alive_cell_count++;
 				}
@@ -412,6 +411,12 @@ unsigned int World::count_neighbours(unsigned int x, unsigned int y, bool toroid
 	return alive_cell_count;
 }
 
+/**
+ * Check if cell is alive at coordinates (x, y).
+ * @param x - The x coordinate.
+ * @param y - The y coordinate.
+ * @return boolean - True if cell alive, false otherwise.
+ */
 bool World::is_alive(unsigned int x, unsigned int y) {
 	return this->current_state.get(x, y) == Cell::ALIVE;
 }
@@ -451,8 +456,8 @@ void World::step(bool toroidal) {
 			}
 		}
 	}
-	this->current_state = this->next_state;
-	this->next_state = Grid(this->current_state.get_width(), this->current_state.get_height());
+
+	std::swap(this->current_state, this->next_state);
 }
 
 /**
