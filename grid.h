@@ -35,26 +35,27 @@ private:
 
     unsigned int get_index(unsigned int x, unsigned int y) const;
 	void check_if_in_bounds(int x, int y) const;
+	void zero_values_if_negative(int & x, int & y) const;
 
 public:
     Grid();
-    explicit Grid(unsigned int gridSize);
-    explicit Grid(unsigned int width, unsigned int height);
+    explicit Grid(int gridSize);
+    explicit Grid(int width, int height);
 
-    const unsigned int &get_width() const;
-    const unsigned int &get_height() const;
+    unsigned int get_width() const;
+    unsigned int get_height() const;
     unsigned int get_total_cells() const;
     unsigned int get_alive_cells() const;
     unsigned int get_dead_cells() const;
 
 	Cell get(int x, int y) const;
-	void set(unsigned int x, unsigned int y, Cell value);
+	void set(int x, int y, Cell value);
 
-	void resize(unsigned int square_size);
-    void resize(unsigned int width, unsigned int height);
+	void resize(int square_size);
+    void resize(int width, int height);
 
     Cell & operator()(int x, int y);
-    const Cell operator()(int x, int y) const;
+    const Cell & operator()(int x, int y) const;
 
 	Grid crop(int x0, int y0, int x1, int y1) const;
 	void merge(const Grid& other, int x0, int y0, bool alive_only = false);

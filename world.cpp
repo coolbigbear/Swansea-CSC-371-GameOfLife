@@ -100,7 +100,7 @@ World::World(const unsigned int width, const unsigned int gridHeight) {
  * @param initial_state
  *      The state of the constructed world.
  */
-World::World(Grid initial_state) {
+World::World(const Grid &initial_state) {
 	this->current_state = std::move(initial_state);
 	this->next_state = Grid(this->current_state.get_width(), this->current_state.get_height());
 }

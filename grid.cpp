@@ -57,7 +57,7 @@ Grid::Grid() : Grid(0) {
  * @param square_size
  *      The edge size to use for the width and height of the grid.
  */
-Grid::Grid(const unsigned int gridSize) : Grid(gridSize, gridSize) {
+Grid::Grid(const int gridSize) : Grid(gridSize, gridSize) {
 }
 
 /**
@@ -76,7 +76,8 @@ Grid::Grid(const unsigned int gridSize) : Grid(gridSize, gridSize) {
  * @param height
  *      The height of the grid.
  */
-Grid::Grid(const unsigned int width, const unsigned int height) : gridHeight(height), gridWidth(width) {
+Grid::Grid(int width, int height) : gridHeight(height), gridWidth(width) {
+	zero_values_if_negative(width, height);
     std::vector<Cell> tempGrid(width * height, Cell::DEAD);
     this->grid = tempGrid;
 }
@@ -104,7 +105,7 @@ Grid::Grid(const unsigned int width, const unsigned int height) : gridHeight(hei
  * @return
  *      The width of the grid.
  */
-const unsigned int &Grid::get_width() const {
+unsigned int Grid::get_width() const {
     return this->gridWidth;
 }
 
@@ -131,7 +132,7 @@ const unsigned int &Grid::get_width() const {
  * @return
  *      The height of the grid.
  */
-const unsigned int &Grid::get_height() const {
+unsigned int Grid::get_height() const {
     return this->gridHeight;
 }
 
@@ -239,7 +240,7 @@ unsigned int Grid::get_dead_cells() const {
  * @param square_size
  *      The new edge size for both the width and height of the grid.
  */
-void Grid::resize(const unsigned int square_size) {
+void Grid::resize(const int square_size) {
     resize(square_size, square_size);
 }
 
@@ -263,7 +264,10 @@ void Grid::resize(const unsigned int square_size) {
  * @param new_height
  *      The new height for the grid.
  */
-void Grid::resize(const unsigned int width, const unsigned int height) {
+void Grid::resize(int width, int height) {
+
+	// Zeroing negative values as resizing a grid with negative values will just destroy it.
+	zero_values_if_negative(width, height);
 
 	// Create new grid to copy old grid in to
 	const unsigned int new_grid_size = width * height;
@@ -377,7 +381,7 @@ Cell Grid::get(const int x, const int y) const {
  * @throws
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
-void Grid::set(unsigned int x, unsigned int y, Cell value) {
+void Grid::set(const int x, const int y, Cell value) {
 	check_if_in_bounds(x, y);
 	Grid::operator()(x, y) = value;
 }
@@ -452,7 +456,7 @@ Cell & Grid::operator()(const int x, const int y) {
  * @throws
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
-const Cell Grid::operator()(const int x, const int y) const {
+const Cell & Grid::operator()(const int x, const int y) const {
 	check_if_in_bounds(x, y);
 	return this->grid[Grid::get_index(x, y)];
 }
@@ -506,8 +510,6 @@ Grid Grid::crop(const int x0, const int y0, const int x1, const int y1) const {
 		throw std::invalid_argument(ss.str());
 	}
 
-	const unsigned int new_grid_width = x1 - x0;
-	const unsigned int new_grid_height = y1 - y0;
 	unsigned int old_grid_index = 0;
 	unsigned int cells_in_row = 0;
 
@@ -524,7 +526,10 @@ Grid Grid::crop(const int x0, const int y0, const int x1, const int y1) const {
 		old_grid_index = (this->gridWidth * y0) + x0; // Find row and add offset
 	}
 
+	const int new_grid_width = x1 - x0;
+	const int new_grid_height = y1 - y0;
 	Grid temp = Grid(new_grid_width, new_grid_height);
+
 	// Loop over selected portion of grid and copy from old to new Grid.
 	for (unsigned int new_grid_index = 0; new_grid_index < temp.get_total_cells(); new_grid_index++) {
 		if (cells_in_row >= new_grid_width) {
@@ -652,7 +657,7 @@ Grid Grid::rotate(const int rotation) const {
 
 	Grid g = (*this);
 
-	int rotation_direction = abs(rotation % 4 + 4) % 4;
+	unsigned int rotation_direction = abs(rotation % 4 + 4) % 4;
 
 	if (rotation_direction == 0) {
 		//Grid doesn't change
@@ -791,5 +796,21 @@ void Grid::check_if_in_bounds(const int x, const int y) const {
 		std::stringstream ss;
 		ss << x  << ", " << y << " is not a valid coordinate within the grid";
 		throw std::out_of_range(ss.str());
+	}
+}
+
+/**
+ * Check whether passed values are negative.
+ * @param x - The x value.
+ * @param y - The y value.
+ *
+ * @throws 	- out_of_range exception if x or y not positive.
+ */
+void Grid::zero_values_if_negative(int & x, int & y) const {
+	if (x < 0) {
+		x = 0;
+	}
+	if (x < 0) {
+		x = 0;
 	}
 }

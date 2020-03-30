@@ -34,7 +34,7 @@ public:
 	World();
 	explicit World(unsigned int square_size);
 	World(unsigned int width, unsigned int gridHeight);
-	explicit World(Grid initial_state);
+	explicit World(const Grid &initial_state);
 
 	unsigned int get_width() const;
 	unsigned int get_height() const;
