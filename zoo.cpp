@@ -246,7 +246,7 @@ Grid Zoo::load_ascii(const std::string& path) {
  * @throws
  *      Throws std::runtime_error or sub-class if the file cannot be opened.
  */
-void Zoo::save_ascii(const std::string& path, const Grid& grid) {
+void Zoo::save_ascii(const std::string& path, Grid& grid) {
 	std::ofstream file(path);
 	if (file.is_open()) {
 
@@ -254,12 +254,12 @@ void Zoo::save_ascii(const std::string& path, const Grid& grid) {
 		file << grid.get_width() << " " << grid.get_height() << "\n";
 
 		// Read array from top left corner going down and across and add char by char to file
-		for (unsigned int x = 0; x < grid.get_width(); x++) {
-			for (unsigned int y = 0; y < grid.get_height(); y++) {
+		for (unsigned int y = 0; y < grid.get_height(); y++) {
+			for (unsigned int x = 0; x < grid.get_width(); x++) {
 
 				char c = (char) grid.get(x, y);
 				// If end of row add char followed by new line char
-				if (y == grid.get_width() - 1) {
+				if (x >= grid.get_width() - 1) {
 					file << c << "\n";
 					break;
 				} else {

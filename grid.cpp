@@ -14,7 +14,6 @@
 #include "grid.h"
 #include <sstream>
 #include <vector>
-#include <iostream>
 
 // Include the minimal number of headers needed to support your implementation.
 // #include ...
@@ -57,7 +56,7 @@ Grid::Grid() : Grid(0) {
  * @param square_size
  *      The edge size to use for the width and height of the grid.
  */
-Grid::Grid(unsigned int gridSize) : Grid(gridSize, gridSize) {
+Grid::Grid(const unsigned int gridSize) : Grid(gridSize, gridSize) {
 }
 
 /**
@@ -76,9 +75,8 @@ Grid::Grid(unsigned int gridSize) : Grid(gridSize, gridSize) {
  * @param height
  *      The height of the grid.
  */
-Grid::Grid(unsigned int width, unsigned int height) : gridHeight(height), gridWidth(width) {
-    std::vector<Cell> tempGrid;
-    tempGrid.assign(width * height, Cell::DEAD);
+Grid::Grid(const unsigned int width, const unsigned int height) : gridHeight(height), gridWidth(width) {
+    std::vector<Cell> tempGrid(width * height, Cell::DEAD);
     this->grid = tempGrid;
 }
 
@@ -220,13 +218,7 @@ unsigned int Grid::get_alive_cells() const {
  *      The number of dead cells.
  */
 unsigned int Grid::get_dead_cells() const {
-    unsigned int total = 0;
-    for (char i : this->grid) {
-        if (i == Cell::DEAD) {
-            total += 1;
-        }
-    }
-    return total;
+    return this->get_total_cells() - this->get_alive_cells();
 }
 
 /**
@@ -246,7 +238,7 @@ unsigned int Grid::get_dead_cells() const {
  * @param square_size
  *      The new edge size for both the width and height of the grid.
  */
-void Grid::resize(unsigned int square_size) {
+void Grid::resize(const unsigned int square_size) {
     resize(square_size, square_size);
 }
 
@@ -270,51 +262,36 @@ void Grid::resize(unsigned int square_size) {
  * @param new_height
  *      The new height for the grid.
  */
-void Grid::resize(unsigned int width, unsigned int height) {
+void Grid::resize(const unsigned int width, const unsigned int height) {
 
 	// Create new grid to copy old grid in to
-    unsigned int newSize = width * height;
+	const unsigned int new_grid_size = width * height;
     std::vector<Cell > grid2;
-    grid2.assign(newSize,Cell::DEAD);
+    grid2.assign(new_grid_size, Cell::DEAD);
 
-    unsigned int j = 0;
-    unsigned int k = 0;
-    unsigned int i = 0;
-    unsigned int gridLength;
-    unsigned int gridSize;
+    unsigned int grid_width;
+    unsigned int grid_height;
 
     // Set variables depending if grid is being made smaller or bigger
-    if (this->gridWidth < width) {
-        gridLength = this->gridWidth;
-        gridSize = this->grid.size();
-    } else {
-        gridSize = newSize;
-        gridLength = width;
+    if (this->gridWidth < width) {	// Making bigger than original
+        grid_width = this->gridWidth;
+        grid_height = this->gridHeight;
+    } else {						// Making grid smaller
+        grid_height = height;
+		grid_width = width;
     }
 
     // Loop over new grid and copy elements from old grid to new grid
+    // First check if grid is size 0
     if (this->gridWidth != 0 && this->gridHeight != 0) {
-        for (i = 0; i < newSize; i++) {
-
-        	// Check if reached end of row, if it has, increase i/j to read next row
-            if (k >= gridLength) {
-                k = 0;
-                if (this->gridWidth < width) {
-                    i += abs(this->gridWidth - width);
-                } else {
-                    j += abs(this->gridWidth - width);
-                }
-            }
-            grid2[i] = grid[j];
-            j++;
-            k++;
-            // Break when reach end of grid (new or old depending is making smaller or bigger)
-            if (j == gridSize) {
-                break;
-            }
+        for (unsigned int y = 0; y < grid_height; y++) {
+        	for (unsigned int x = 0; x < grid_width; x++) {
+				grid2[y * width + x] = this->get(x, y);
+			}
         }
     }
 
+    // Assign grid and update height and width
     this->grid = grid2;
     this->gridHeight = height;
     this->gridWidth = width;
@@ -337,7 +314,7 @@ void Grid::resize(unsigned int width, unsigned int height) {
  *      The 1d offset from the start of the data array where the desired cell is located.
  */
 unsigned int Grid::get_index(unsigned int x, unsigned int y) const {
-    return (y * get_width()) + x;
+    return (y * this->get_width()) + x;
 }
 
 /**
@@ -476,7 +453,7 @@ Cell & Grid::operator()(unsigned int x, unsigned int y) {
  */
 Cell Grid::operator()(unsigned int x, unsigned int y) const {
 	check_if_in_bounds(x, y);
-	return Cell(this->grid[Grid::get_index(x, y)]);
+	return this->grid[Grid::get_index(x, y)];
 }
 
 /**
@@ -513,44 +490,49 @@ Cell Grid::operator()(unsigned int x, unsigned int y) const {
  *      std::exception or sub-class if x0,y0 or x1,y1 are not valid coordinates within the grid
  *      or if the crop window has a negative size.
  */
-Grid Grid::crop(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1) {
+Grid Grid::crop(const unsigned int x0, const unsigned int y0, const unsigned int x1, const unsigned int y1) const {
 
 	check_if_in_bounds(x0, y0);
 	check_if_in_bounds(x1, y1);
 
 	if (y0 > y1 || x0 > x1) {
-		throw std::invalid_argument("Crop window has a negative size.");
+		std::stringstream ss;
+		ss << "Crop window has a negative size:"<<
+		" x0 = "<< x0 <<
+		" y0 = " << y0 <<
+		" x1 = " << x1 <<
+		" y1 = " << y1;
+		throw std::invalid_argument(ss.str());
 	}
 
-	unsigned int width = x1 - x0;
-	unsigned int height = y1 - y0;
-	unsigned int j;
-	unsigned int i = 0;
-	unsigned int k = 0;
+	const unsigned int new_grid_width = x1 - x0;
+	const unsigned int new_grid_height = y1 - y0;
+	unsigned int old_grid_index;
+	unsigned int cells_in_row = 0;
 
 	// Figure out if 0's are passed and where to start the grid
 	if (x0 == 0 || y0 == 0) {
 		if (x0 + y0 == 0) {
-			j = 0;
+			old_grid_index = 0;	// Cropping starts in top left corner
 		} else if (x0 == 0) {
-			j = y0 * this->gridWidth;
+			old_grid_index = y0 * this->gridWidth; // Cropping starts at start of row y0
 		} else {
-			j = x0;
+			old_grid_index = x0; // Cropping starts on first row at offset x0
 		}
 	} else {
-		j = (width + 2) * (height + 2); // Add 2 (1 for starting at 0, 1 for being exclusive on the grid i.e 1 over)
+		old_grid_index = (new_grid_width + 2) * (new_grid_height + 2); // Add 2 (1 for starting at 0, 1 for being exclusive on the new_grid_index.e 1 over)
 	}
 
-	Grid temp = Grid(width, height);
+	Grid temp = Grid(new_grid_width, new_grid_height);
 	// Loop over selected portion of grid and copy from old to new Grid.
-	for (;i < width * height; i++) {
-		if (k >= width) {
-			k = 0;
-			j += this->gridWidth - width;
+	for (unsigned int new_grid_index = 0; new_grid_index < temp.get_total_cells(); new_grid_index++) {
+		if (cells_in_row >= new_grid_width) {
+			cells_in_row = 0;
+			old_grid_index += this->gridWidth - new_grid_width;
 		}
-		temp.grid[i] = this->grid[j];
-		j++;
-		k++;
+		temp.grid[new_grid_index] = this->grid[old_grid_index];
+		old_grid_index++;
+		cells_in_row++;
 	}
 
 	return temp;
@@ -593,50 +575,53 @@ Grid Grid::crop(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int 
  * @throws
  *      std::exception or sub-class if the other grid being placed does not fit within the bounds of the current grid.
  */
-void Grid::merge(Grid other, unsigned int x0, unsigned int y0, bool alive_only) {
+void Grid::merge(const Grid& other, unsigned int x0, unsigned int y0, bool alive_only) {
 
 	check_if_in_bounds(x0, y0);
 
-	unsigned int width = other.gridWidth;
-	unsigned int height = other.gridHeight;
+	const unsigned int other_grid_width = other.get_width();
+	const unsigned int other_grid_height = other.get_height();
 
-	if (width + x0 > this->get_width() || height + y0 > this->get_height()) {
-		throw std::invalid_argument("Grid being placed does not fit within the bounds of the current grid");
+	if (other_grid_width + x0 > this->get_width() || other_grid_height + y0 > this->get_height()) {
+		std::stringstream ss;
+		ss << "Grid being placed does not fit within the bounds of the current grid:"<<
+		   " x0 = "<< x0 <<
+		   " y0 = " << y0;
+		throw std::invalid_argument(ss.str());
 	}
 
-	unsigned int j;
-	unsigned int i = 0;
-	unsigned int k = 0;
+	unsigned int current_grid_index;
+	unsigned int cells_in_row = 0;
 
 	// Figure out if 0's are passed and where to start the grid
 	if (x0 == 0 || y0 == 0) {
 		if (x0 + y0 == 0) {
-			j = 0;
+			current_grid_index = 0; // Merge starts from top left corner
 		} else if (x0 == 0) {
-			j = y0;
+			current_grid_index = y0 * this->get_width(); // Merge starts at the start of row y0
 		} else {
-			j = x0;
+			current_grid_index = x0; // Merge starts on first row with x0 offset
 		}
 	} else {
-		j = (this->gridWidth * y0) + x0; // Add 2 (1 for starting at 0, 1 for being exclusive on the grid i.e 1 over)
+		current_grid_index = (this->gridWidth * y0) + x0; // Add 2 (1 for starting at 0, 1 for being exclusive on the grid other_grid_index.e 1 over)
 	}
 
-	// Loop over selected portion of grid and copy from other to current.
-	for (;i < width * height; i++) {
-		if (k >= width) {
-			k = 0;
-			j += this->gridWidth - width;
+	// Loop over selected portion of grid and copy from other grid to current.
+	for (unsigned int other_grid_index = 0; other_grid_index < other.get_total_cells(); other_grid_index++) {
+		if (cells_in_row >= other_grid_width) {
+			cells_in_row = 0;
+			current_grid_index += this->gridWidth - other_grid_width;
 		}
 		if (alive_only) {
-			Cell &cell = reinterpret_cast<Cell &>(this->grid[j]);
+			Cell &cell = this->grid[current_grid_index];
 			if (cell == Cell::DEAD) {
-				this->grid[j] = other.grid[i];
+				cell = other.grid[other_grid_index];
 			}
 		} else {
-			this->grid[j] = other.grid[i];
+			this->grid[current_grid_index] = other.grid[other_grid_index];
 		}
-		j++;
-		k++;
+		current_grid_index++;
+		cells_in_row++;
 	}
 }
 
@@ -671,42 +656,69 @@ Grid Grid::rotate(int rotation) const {
 	if (rotation_direction == 0) {
 		//Grid doesn't change
 	} else if (rotation_direction == 3) {
-		// Top of grid facing to the left now
-		unsigned int k = 1;
-		unsigned int i = 0;
-		for (unsigned int j = 1; j <= this->get_height(); j++) {
-//			auto james = (this->gridWidth * j) - k;
-			g.grid[i] = this->grid[(this->gridWidth * j) - k];
-			i++;
-			if(i != this->get_size() && j == get_height()) {
-				j = 0;
-				k++;
+		// Original top of grid facing to the left
+		// Reading from top left corner
+		//      +-----------+
+		// -->  | 3 | 6 | 9 |  Read last index of each row, then second index of each row, then third etc.
+		//    T |---|---|---|
+		//    O | 2 | 5 | 8 |
+		//    P |---|---|---|
+		//      | 1 | 4 | 7 |
+		//      +-----------+
+		//
+		unsigned int offset = 1;
+		unsigned int new_grid_index = 0;
+		for (unsigned int current_row = 1; current_row <= this->get_height(); current_row++) {
+			g.grid[new_grid_index] = this->grid[(this->gridWidth * current_row) - offset];
+			new_grid_index++;
+			if(new_grid_index != this->get_total_cells() && current_row == get_height()) {
+				current_row = 0;
+				offset++;
 			}
 		}
-		auto temp = g.gridWidth;
+		// Re-assign width's and heights
+		const unsigned int temp = g.gridWidth;
 		g.gridWidth = g.gridHeight;
 		g.gridHeight = temp;
+
 	} else if (rotation_direction == 2) {
-		// Top of grid facing down
+		// Original top of grid facing down
+		// Reading from top left corner
+		//      +-----------+
+		// -->  | 9 | 8 | 7 |  Read grid upside down.
+		//      |---|---|---|
+		//      | 6 | 5 | 4 |
+		//      |---|---|---|
+		//      | 3 | 2 | 1 |
+		//      +-----------+
+		// 			T O P
 		unsigned int j = 0;
 		for (auto i = this->grid.crbegin(); i != this->grid.crend(); ++i) {
 			g.grid[j] = *i;
 			j++;
 		}
 	} else {
-		// Top of grid facing to the right
-		int k = this->get_width() * - 1;
-		unsigned int i = 0;
-		for (unsigned int j = this->get_height(); j>=1 ; j--) {
-//			auto bob = (this->gridWidth * j) + k;
-			g.grid[i] = this->grid[(this->gridWidth * j) + k];
-			i++;
-			if(i != this->get_size() && j == 1) {
-				j = this->get_height() + 1;
-				k++;
+		// Original top of grid facing to the right
+		// Reading from top left corner
+		//      +-----------+
+		// -->  | 7 | 4 | 1 |  Read (starting from last row) first index of each row, then second index of each row etc.
+		//      |---|---|---| T
+		//      | 8 | 5 | 2 | O
+		//      |---|---|---| P
+		//      | 9 | 6 | 3 |
+		//      +-----------+
+		//
+		unsigned int offset = this->get_width() * - 1;
+		unsigned int new_grind_index = 0;
+		for (unsigned int current_row = this->get_height(); current_row >= 1 ; current_row--) {
+			g.grid[new_grind_index] = this->grid[(this->gridWidth * current_row) + offset];
+			new_grind_index++;
+			if(new_grind_index != this->get_total_cells() && current_row == 1) {
+				current_row = this->get_height() + 1;
+				offset++;
 			}
 		}
-		auto temp = g.gridWidth;
+		const unsigned int temp = g.gridWidth;
 		g.gridWidth = g.gridHeight;
 		g.gridHeight = temp;
 	}
@@ -749,34 +761,30 @@ Grid Grid::rotate(int rotation) const {
  * @return
  *      Returns a reference to the output stream to enable operator chaining.
  */
-std::ostream & operator<<(std::ostream & output_stream, Grid& grid) {
+std::ostream & operator<<(std::ostream & output_stream, const Grid& grid) {
 
 	std::string padding = "+" + std::string(grid.get_width(), '-') + "+";
-	output_stream << padding << std::endl;
-	unsigned int j = 1;
-	for (unsigned int i = 0; i < grid.get_size(); i++) {
-		if (j == 1) {
-			output_stream << "|";
+	output_stream << padding << std::endl; 	// Top row
+
+	for (unsigned int y = 0; y < grid.get_height(); y++) {
+		output_stream << "|"; 				// Start of row
+		for (unsigned int x = 0; x < grid.get_width(); x++) {
+			output_stream << (char) grid.get(x, y);
 		}
-		output_stream << (char) grid.getGrid()[i];
-		j++;
-		if (j > grid.get_width()) {
-			j = 1;
-			output_stream << "|" << std::endl;
-		}
+		output_stream << "|" << std::endl; 	// End of row
 	}
-	output_stream << padding << std::endl;
+	output_stream << padding << std::endl; 	// Bottom row
+
 	return output_stream;
 }
 
-const std::vector<Cell> &Grid::getGrid() const {
-	return grid;
-}
-
-unsigned int Grid::get_size() const {
-	return this->gridWidth * this->gridHeight;
-}
-
+/**
+ * Check whether passed coordinates are in grid.
+ * @param x - The x coordinate.
+ * @param y - The y coordinate.
+ *
+ * @throws 	- out_of_range exception if point (x,y) not in grid.
+ */
 void Grid::check_if_in_bounds(unsigned int x, unsigned int y) const {
 	if (x > this->get_width() || y > this->get_height() || x < 0 || y < 0) {
 		std::stringstream ss;

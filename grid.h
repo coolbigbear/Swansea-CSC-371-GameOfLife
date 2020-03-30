@@ -50,11 +50,9 @@ public:
     void set(unsigned int x, unsigned int y, Cell value);
     Cell & operator()(unsigned int x, unsigned int y);
     Cell operator()(unsigned int x, unsigned int y) const;
-	Grid crop(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1);
-	void merge(Grid other, unsigned int x0, unsigned int y0, bool alive_only = false);
+	Grid crop(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1) const;
+	void merge(const Grid& other, unsigned int x0, unsigned int y0, bool alive_only = false);
 	Grid rotate(int rotation) const;
-	friend std::ostream & operator<<(std::ostream & output_stream, Grid& grid);
-	unsigned int get_size() const;
-	const std::vector<Cell> &getGrid() const;
-	void check_if_in_bounds(unsigned int x, const unsigned int y) const;
+	friend std::ostream & operator<<(std::ostream & output_stream, const Grid& grid);
+	void check_if_in_bounds(unsigned int x, unsigned int y) const;
 };
