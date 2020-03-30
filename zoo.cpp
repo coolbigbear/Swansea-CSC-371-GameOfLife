@@ -181,7 +181,7 @@ Grid Zoo::load_ascii(const std::string& path) {
 	}
 
 	char c;
-	unsigned int width, height;
+	int width, height;
 	input >> width >> height;
 	input.get(c); // Read new line char after width and height
 
@@ -248,7 +248,7 @@ Grid Zoo::load_ascii(const std::string& path) {
  * @throws
  *      Throws std::runtime_error or sub-class if the file cannot be opened.
  */
-void Zoo::save_ascii(const std::string& path, Grid& grid) {
+void Zoo::save_ascii(const std::string& path, const Grid& grid) {
 	std::ofstream file(path);
 
 	if (file.is_open()) {

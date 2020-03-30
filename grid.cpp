@@ -14,6 +14,7 @@
 #include "grid.h"
 #include <sstream>
 #include <vector>
+#include <stdexcept>
 
 // Include the minimal number of headers needed to support your implementation.
 // #include ...
@@ -284,8 +285,8 @@ void Grid::resize(const unsigned int width, const unsigned int height) {
     // Loop over new grid and copy elements from old grid to new grid
     // First check if grid is size 0
     if (this->gridWidth != 0 && this->gridHeight != 0) {
-        for (unsigned int y = 0; y < grid_height; y++) {
-        	for (unsigned int x = 0; x < grid_width; x++) {
+        for (int y = 0; y < grid_height; y++) {
+        	for (int x = 0; x < grid_width; x++) {
 				grid2[y * width + x] = this->get(x, y);
 			}
         }
@@ -345,7 +346,7 @@ unsigned int Grid::get_index(unsigned int x, unsigned int y) const {
  * @throws
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
-Cell Grid::get(unsigned int x, unsigned int y) const {
+Cell Grid::get(const int x, const int y) const {
 	check_if_in_bounds(x, y);
     return (*this)(x, y);
 }
@@ -416,7 +417,7 @@ void Grid::set(unsigned int x, unsigned int y, Cell value) {
  * @throws
  *      std::runtime_error or sub-class if x,y is not a valid coordinate within the grid.
  */
-Cell & Grid::operator()(unsigned int x, unsigned int y) {
+Cell & Grid::operator()(const int x, const int y) {
 	check_if_in_bounds(x, y);
 	return this->grid[Grid::get_index(x, y)];
 }
@@ -451,7 +452,7 @@ Cell & Grid::operator()(unsigned int x, unsigned int y) {
  * @throws
  *      std::exception or sub-class if x,y is not a valid coordinate within the grid.
  */
-const Cell Grid::operator()(unsigned int x, unsigned int y) const {
+const Cell Grid::operator()(const int x, const int y) const {
 	check_if_in_bounds(x, y);
 	return this->grid[Grid::get_index(x, y)];
 }
@@ -490,7 +491,7 @@ const Cell Grid::operator()(unsigned int x, unsigned int y) const {
  *      std::exception or sub-class if x0,y0 or x1,y1 are not valid coordinates within the grid
  *      or if the crop window has a negative size.
  */
-Grid Grid::crop(const unsigned int x0, const unsigned int y0, const unsigned int x1, const unsigned int y1) const {
+Grid Grid::crop(const int x0, const int y0, const int x1, const int y1) const {
 
 	check_if_in_bounds(x0, y0);
 	check_if_in_bounds(x1, y1);
@@ -507,7 +508,7 @@ Grid Grid::crop(const unsigned int x0, const unsigned int y0, const unsigned int
 
 	const unsigned int new_grid_width = x1 - x0;
 	const unsigned int new_grid_height = y1 - y0;
-	unsigned int old_grid_index;
+	unsigned int old_grid_index = 0;
 	unsigned int cells_in_row = 0;
 
 	// Figure out if 0's are passed and where to start the grid
@@ -520,7 +521,7 @@ Grid Grid::crop(const unsigned int x0, const unsigned int y0, const unsigned int
 			old_grid_index = x0; // Cropping starts on first row at offset x0
 		}
 	} else {
-		old_grid_index = (new_grid_width + 2) * (new_grid_height + 2); // Add 2 (1 for starting at 0, 1 for being exclusive on the new_grid_index.e 1 over)
+		old_grid_index = (this->gridWidth * y0) + x0; // Find row and add offset
 	}
 
 	Grid temp = Grid(new_grid_width, new_grid_height);
@@ -575,7 +576,7 @@ Grid Grid::crop(const unsigned int x0, const unsigned int y0, const unsigned int
  * @throws
  *      std::exception or sub-class if the other grid being placed does not fit within the bounds of the current grid.
  */
-void Grid::merge(const Grid& other, unsigned int x0, unsigned int y0, bool alive_only) {
+void Grid::merge(const Grid& other, const int x0, const int y0, bool alive_only) {
 
 	check_if_in_bounds(x0, y0);
 
@@ -603,7 +604,7 @@ void Grid::merge(const Grid& other, unsigned int x0, unsigned int y0, bool alive
 			current_grid_index = x0; // Merge starts on first row with x0 offset
 		}
 	} else {
-		current_grid_index = (this->gridWidth * y0) + x0; // Add 2 (1 for starting at 0, 1 for being exclusive on the grid other_grid_index.e 1 over)
+		current_grid_index = (this->gridWidth * y0) + x0; // Find row and add offset
 	}
 
 	// Loop over selected portion of grid and copy from other grid to current.
@@ -647,7 +648,7 @@ void Grid::merge(const Grid& other, unsigned int x0, unsigned int y0, bool alive
  * @return
  *      Returns a copy of the grid that has been rotated.
  */
-Grid Grid::rotate(int rotation) const {
+Grid Grid::rotate(const int rotation) const {
 
 	Grid g = (*this);
 
@@ -766,9 +767,9 @@ std::ostream & operator<<(std::ostream & output_stream, const Grid& grid) {
 	std::string padding = "+" + std::string(grid.get_width(), '-') + "+";
 	output_stream << padding << std::endl; 	// Top row
 
-	for (unsigned int y = 0; y < grid.get_height(); y++) {
+	for (int y = 0; y < grid.get_height(); y++) {
 		output_stream << "|"; 				// Start of row
-		for (unsigned int x = 0; x < grid.get_width(); x++) {
+		for (int x = 0; x < grid.get_width(); x++) {
 			output_stream << (char) grid.get(x, y);
 		}
 		output_stream << "|" << std::endl; 	// End of row
@@ -785,7 +786,7 @@ std::ostream & operator<<(std::ostream & output_stream, const Grid& grid) {
  *
  * @throws 	- out_of_range exception if point (x,y) not in grid.
  */
-void Grid::check_if_in_bounds(unsigned int x, unsigned int y) const {
+void Grid::check_if_in_bounds(const int x, const int y) const {
 	if (x > this->get_width() || y > this->get_height() || x < 0 || y < 0) {
 		std::stringstream ss;
 		ss << x  << ", " << y << " is not a valid coordinate within the grid";

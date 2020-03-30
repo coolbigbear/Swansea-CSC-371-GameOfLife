@@ -34,6 +34,7 @@ private:
     unsigned int gridWidth;
 
     unsigned int get_index(unsigned int x, unsigned int y) const;
+	void check_if_in_bounds(int x, int y) const;
 
 public:
     Grid();
@@ -45,21 +46,19 @@ public:
     unsigned int get_total_cells() const;
     unsigned int get_alive_cells() const;
     unsigned int get_dead_cells() const;
-	Cell get(unsigned int x, unsigned int y) const;
+
+	Cell get(int x, int y) const;
+	void set(unsigned int x, unsigned int y, Cell value);
 
 	void resize(unsigned int square_size);
     void resize(unsigned int width, unsigned int height);
 
-    void set(unsigned int x, unsigned int y, Cell value);
+    Cell & operator()(int x, int y);
+    const Cell operator()(int x, int y) const;
 
-    Cell & operator()(unsigned int x, unsigned int y);
-    const Cell operator()(unsigned int x, unsigned int y) const;
-
-	Grid crop(unsigned int x0, unsigned int y0, unsigned int x1, unsigned int y1) const;
-	void merge(const Grid& other, unsigned int x0, unsigned int y0, bool alive_only = false);
+	Grid crop(int x0, int y0, int x1, int y1) const;
+	void merge(const Grid& other, int x0, int y0, bool alive_only = false);
 	Grid rotate(int rotation) const;
 
 	friend std::ostream & operator<<(std::ostream & output_stream, const Grid& grid);
-
-	void check_if_in_bounds(unsigned int x, unsigned int y) const;
 };
