@@ -355,14 +355,15 @@ unsigned int World::count_neighbours(unsigned int x, unsigned int y, bool toroid
 	unsigned int width = this->current_state.get_width();
 
 	if (toroidal) {
-		alive_cell_count = is_alive(x, ((y - 1) + height) % width) + // above
-						 is_alive(x, ((y + 1) + height) % height) + // below
-						 is_alive(((x - 1) + width) % width, y) + // left
-						 is_alive(((x + 1) + width) % width, y) + // right
-						 is_alive(((x - 1) + width) % width, ((y - 1) + height) % height) + // top left
-						 is_alive(((x - 1) + width) % width, ((y + 1) + height) % height) + // bottom left
-						 is_alive(((x + 1) + width) % width, ((y - 1) + height) % height) + // top right
-						 is_alive(((x + 1) + width) % width, ((y + 1) + height) % height); // bottom right
+		alive_cell_count = 	is_alive(((x - 1) + width) % width, ((y - 1) + height) % height) + // top left
+							is_alive(x, ((y - 1) + height) % width) + // top
+							is_alive(((x + 1) + width) % width, ((y - 1) + height) % height) + // top right
+							is_alive(((x - 1) + width) % width, y) + // middle left
+							// Don't count middle square
+							is_alive(((x + 1) + width) % width, y) + // right
+							is_alive(((x - 1) + width) % width, ((y + 1) + height) % height) + // bottom left
+							is_alive(x, ((y + 1) + height) % height) + // below
+						 	is_alive(((x + 1) + width) % width, ((y + 1) + height) % height); // bottom right
 	} else {
 
 		unsigned int start_x, end_x;
