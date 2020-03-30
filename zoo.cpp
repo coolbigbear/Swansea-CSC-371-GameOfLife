@@ -24,11 +24,12 @@
 
 // Include the minimal number of headers needed to support your implementation.
 // #include ...
-#include "zoo.h"
+
 #include "grid.h"
+#include "zoo.h"
 #include <fstream>
-#include <bitset>
 #include <sstream>
+#include <stdexcept>
 
 /**
  * Zoo::glider()
@@ -197,8 +198,8 @@ Grid Zoo::load_ascii(const std::string& path) {
 
 	Grid grid = Grid(width, height);
 
-	unsigned int x = 0;
-	unsigned int y = 0;
+	int x = 0;
+	int y = 0;
 	while (input.get(c)) {
 		if (c != '\n' && x != width) { // Only read if new line "\n" at the end of width of the grid
 			if (c == Cell::ALIVE || c == Cell::DEAD) { // Check if char is in enum
@@ -256,8 +257,8 @@ void Zoo::save_ascii(const std::string& path, const Grid& grid) {
 		file << grid.get_width() << " " << grid.get_height() << "\n";
 
 		// Read array from top left corner going across then down and add char by char to file
-		for (unsigned int y = 0; y < grid.get_height(); y++) {
-			for (unsigned int x = 0; x < grid.get_width(); x++) {
+		for (int y = 0; y < grid.get_height(); y++) {
+			for (int x = 0; x < grid.get_width(); x++) {
 				char c = (char) grid.get(x, y);
 				// If end of row add char followed by new line char
 				if (x >= grid.get_width() - 1) {
@@ -303,12 +304,21 @@ Grid Zoo::load_binary(const std::string& path) {
 		throw std::runtime_error("File cannot be opened!\nPath: " + path);
 	}
 
-	unsigned int width, height;
+	int width, height;
 	file.read(reinterpret_cast<char *>(&width), 4);
 	file.read(reinterpret_cast<char *>(&height), 4);
 
+	// Check if negative numbers exist, zero them
+	if (width < 0) {
+		width = 0;
+	}
+	if (height < 0) {
+		height = 0;
+	}
+
 	Grid grid = Grid(width, height);
-	unsigned int x = 0, y = 0;
+	int x = 0;
+	int y = 0;
 	unsigned int grid_size = (width * height) - 1; // -1 since grid starts from 0 not 1
 
 	for (unsigned int cell_count = 0; cell_count < grid_size;) {
@@ -383,8 +393,8 @@ void Zoo::save_binary(const std::string& path, const Grid& grid) {
 	}
 
 	// Grab width and height
-	const unsigned int width = grid.get_width();
-	const unsigned int height = grid.get_height();
+	int width = grid.get_width();
+	int height = grid.get_height();
 
 	// Write to file as 4 bytes
 	file.write((char*)&width,4);
@@ -395,8 +405,8 @@ void Zoo::save_binary(const std::string& path, const Grid& grid) {
 	int cell_count = 0;
 
 	// Loop through grid, starting in top left corner going across then down
-	for (unsigned int y = 0; y < height; y++) {
-		for (unsigned int x = 0; x < width; x++) {
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
 
 			// Reached end of byte
 			if (bit_count > 7) {

@@ -27,13 +27,13 @@ private:
 	Grid current_state;
 	Grid next_state;
 
-	unsigned int count_neighbours(unsigned int x, unsigned int y, bool toroidal);
-	bool is_alive(unsigned int x, unsigned int y);
+	unsigned int count_neighbours(int x, int y, bool toroidal);
+	bool is_alive(int x, int y);
 
 public:
 	World();
-	explicit World(unsigned int square_size);
-	World(unsigned int width, unsigned int gridHeight);
+	explicit World(int square_size);
+	World(int width, int gridHeight);
 	explicit World(const Grid &initial_state);
 
 	unsigned int get_width() const;
@@ -43,11 +43,11 @@ public:
 	unsigned int get_dead_cells() const;
 	const Grid& get_state() const;
 
-	void resize(unsigned int square_size);
-	void resize(unsigned int new_width, unsigned int new_height);
+	void resize(int square_size);
+	void resize(int new_width, int new_height);
 
 	void step(bool toroidal = false);
-	void advance(unsigned int steps, bool toroidal = false);
+	void advance(int steps, bool toroidal = false);
 
     // How to draw an owl:
     //      Step 1. Draw a circle.

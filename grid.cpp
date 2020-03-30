@@ -105,7 +105,7 @@ Grid::Grid(int width, int height) : gridHeight(height), gridWidth(width) {
  * @return
  *      The width of the grid.
  */
-unsigned int Grid::get_width() const {
+int Grid::get_width() const {
     return this->gridWidth;
 }
 
@@ -132,7 +132,7 @@ unsigned int Grid::get_width() const {
  * @return
  *      The height of the grid.
  */
-unsigned int Grid::get_height() const {
+int Grid::get_height() const {
     return this->gridHeight;
 }
 
@@ -274,11 +274,11 @@ void Grid::resize(int width, int height) {
     std::vector<Cell > grid2;
     grid2.assign(new_grid_size, Cell::DEAD);
 
-    unsigned int grid_width;
-    unsigned int grid_height;
+    int grid_width;
+    int grid_height;
 
     // Set variables depending if grid is being made smaller or bigger
-    if (this->gridWidth < width) {	// Making bigger than original
+    if (this->get_width() < width) {	// Making bigger than original
         grid_width = this->gridWidth;
         grid_height = this->gridHeight;
     } else {						// Making grid smaller
@@ -288,7 +288,7 @@ void Grid::resize(int width, int height) {
 
     // Loop over new grid and copy elements from old grid to new grid
     // First check if grid is size 0
-    if (this->gridWidth != 0 && this->gridHeight != 0) {
+    if (this->get_width() != 0 && this->get_height() != 0) {
         for (int y = 0; y < grid_height; y++) {
         	for (int x = 0; x < grid_width; x++) {
 				grid2[y * width + x] = this->get(x, y);
@@ -511,7 +511,7 @@ Grid Grid::crop(const int x0, const int y0, const int x1, const int y1) const {
 	}
 
 	unsigned int old_grid_index = 0;
-	unsigned int cells_in_row = 0;
+	int cells_in_row = 0;
 
 	// Figure out if 0's are passed and where to start the grid
 	if (x0 == 0 || y0 == 0) {
@@ -585,8 +585,8 @@ void Grid::merge(const Grid& other, const int x0, const int y0, bool alive_only)
 
 	check_if_in_bounds(x0, y0);
 
-	const unsigned int other_grid_width = other.get_width();
-	const unsigned int other_grid_height = other.get_height();
+	int other_grid_width = other.get_width();
+	int other_grid_height = other.get_height();
 
 	if (other_grid_width + x0 > this->get_width() || other_grid_height + y0 > this->get_height()) {
 		std::stringstream ss;
@@ -597,7 +597,7 @@ void Grid::merge(const Grid& other, const int x0, const int y0, bool alive_only)
 	}
 
 	unsigned int current_grid_index;
-	unsigned int cells_in_row = 0;
+	int cells_in_row = 0;
 
 	// Figure out if 0's are passed and where to start the grid
 	if (x0 == 0 || y0 == 0) {
@@ -674,7 +674,7 @@ Grid Grid::rotate(const int rotation) const {
 		//
 		unsigned int offset = 1;
 		unsigned int new_grid_index = 0;
-		for (unsigned int current_row = 1; current_row <= this->get_height(); current_row++) {
+		for (int current_row = 1; current_row <= this->get_height(); current_row++) {
 			g.grid[new_grid_index] = this->grid[(this->gridWidth * current_row) - offset];
 			new_grid_index++;
 			if(new_grid_index != this->get_total_cells() && current_row == get_height()) {
@@ -800,17 +800,15 @@ void Grid::check_if_in_bounds(const int x, const int y) const {
 }
 
 /**
- * Check whether passed values are negative.
+ * Check whether passed values are negative. If they are, makes them 0.
  * @param x - The x value.
  * @param y - The y value.
- *
- * @throws 	- out_of_range exception if x or y not positive.
  */
 void Grid::zero_values_if_negative(int & x, int & y) const {
 	if (x < 0) {
 		x = 0;
 	}
-	if (x < 0) {
+	if (y < 0) {
 		x = 0;
 	}
 }

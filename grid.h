@@ -42,8 +42,8 @@ public:
     explicit Grid(int gridSize);
     explicit Grid(int width, int height);
 
-    unsigned int get_width() const;
-    unsigned int get_height() const;
+    int get_width() const;
+    int get_height() const;
     unsigned int get_total_cells() const;
     unsigned int get_alive_cells() const;
     unsigned int get_dead_cells() const;
