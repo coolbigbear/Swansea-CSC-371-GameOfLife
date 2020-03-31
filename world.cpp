@@ -57,12 +57,12 @@ World::World() : World(0) {}
  *      World z = 16;
  *
  * @param square_size
- *      The edge size to use for the width and gridHeight of the world.
+ *      The edge size to use for the width and height of the world.
  */
 World::World(const int square_size) : World(square_size, square_size) {}
 
 /**
- * World::World(width, gridHeight)
+ * World::World(width, height)
  *
  * Construct a world with the desired size filled with dead cells.
  *
@@ -74,11 +74,11 @@ World::World(const int square_size) : World(square_size, square_size) {}
  * @param width
  *      The width of the world.
  * @param height
- *      The gridHeight of the world.
+ *      The height of the world.
  */
-World::World(const int width, const int gridHeight) {
-	this->current_state = Grid(width, gridHeight);
-	this->next_state = Grid(width, gridHeight);
+World::World(const int width, const int height) {
+	this->current_state = Grid(width, height);
+	this->next_state = Grid(width, height);
 }
 
 /**
@@ -135,7 +135,7 @@ unsigned int World::get_width() const {
 /**
  * World::get_height()
  *
- * Gets the current gridHeight of the world.
+ * Gets the current height of the world.
  * The function should be callable from a constant context.
  *
  * @example
@@ -143,17 +143,17 @@ unsigned int World::get_width() const {
  *      // Make a world
  *      World world(4, 4);
  *
- *      // Print the gridHeight of the worlds grid to the console
+ *      // Print the height of the worlds grid to the console
  *      std::cout << world.get_height() << std::endl;
  *
  *      // Should also be callable in a constant context
  *      const World &read_only_world = world;
  *
- *      // Print the gridHeight of the worlds grid to the console
+ *      // Print the height of the worlds grid to the console
  *      std::cout << read_only_world.get_height() << std::endl;
  *
  * @return
- *      The gridHeight of the world.
+ *      The height of the world.
  */
 unsigned int World::get_height() const {
 	return current_state.get_height();
@@ -271,7 +271,7 @@ const Grid& World::get_state() const {
 /**
  * World::resize(square_size)
  *
- * Resize the current state grid in to the new square width and gridHeight.
+ * Resize the current state grid in to the new square width and height.
  *
  * The content of the current state grid should be preserved within the kept region.
  * The values in the next state grid do not need to be preserved, allowing an easy optimization.
@@ -285,7 +285,7 @@ const Grid& World::get_state() const {
  *      world.resize(8);
  *
  * @param square_size
- *      The new edge size for both the width and gridHeight of the grid.
+ *      The new edge size for both the width and height of the grid.
  */
 void World::resize(const int square_size) {
 	resize(square_size, square_size);
@@ -294,7 +294,7 @@ void World::resize(const int square_size) {
 /**
  * World::resize(new_width, new_height)
  *
- * Resize the current state grid in to the new width and gridHeight.
+ * Resize the current state grid in to the new width and height.
  *
  * The content of the current state grid should be preserved within the kept region.
  * The values in the next state grid do not need to be preserved, allowing an easy optimization.
@@ -311,7 +311,7 @@ void World::resize(const int square_size) {
  *      The new width for the grid.
  *
  * @param new_height
- *      The new gridHeight for the grid.
+ *      The new height for the grid.
  */
 void World::resize(const int new_width, const int new_height) {
 	current_state.resize(new_width, new_height);

@@ -30,10 +30,10 @@ enum Cell : char {
 class Grid {
 private:
     std::vector<Cell> grid;
-    unsigned int gridHeight;
-    unsigned int gridWidth;
+    int grid_height;
+    int grid_width;
 
-    unsigned int get_index(unsigned int x, unsigned int y) const;
+    unsigned int get_index(int x, int y) const;
 	void check_if_in_bounds(int x, int y) const;
 	void zero_values_if_negative(int & x, int & y) const;
 
