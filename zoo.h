@@ -18,6 +18,14 @@
  * Declare the interface of the Zoo namespace for constructing lifeforms and saving and loading them from file.
  */
 namespace Zoo {
+
+	// Errors
+	const std::string file_cannot_be_opened_error = "File cannot be opened: ";
+	const std::string newline_characters_not_found_error = "Newline characters are not found when expected during parsing";
+	const std::string file_ends_unexpectedly_error = "File ends unexpectedly";
+	const std::string char_not_in_cell_enum_error = "The character for a cell is not the ALIVE or DEAD character";
+	const std::string height_or_width_not_positive_error = "The parsed grid width or grid height is not a positive integer:";
+
 	Grid glider();
 	Grid r_pentomino();
 	Grid light_weight_spaceship();

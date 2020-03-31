@@ -178,7 +178,7 @@ Grid Zoo::load_ascii(const std::string& path) {
 	std::ifstream input(path);
 
 	if (!input) {
-		throw std::runtime_error("File: " + path + " not found");
+		throw std::runtime_error(file_cannot_be_opened_error + path);
 	}
 
 	char c;
@@ -188,12 +188,12 @@ Grid Zoo::load_ascii(const std::string& path) {
 
 	if (width < 0 || height < 0) {
 		std::stringstream ss;
-		ss << "The parsed width or gridHeight is not a positive integer:" <<
+		ss << height_or_width_not_positive_error <<
 		" width = " << width <<
 		" height = " << height;
 		throw std::runtime_error(ss.str());
 	} else if (c != '\n') {
-		throw std::runtime_error("Newline characters are not found when expected during parsing");
+		throw std::runtime_error(newline_characters_not_found_error);
 	}
 
 	Grid grid = Grid(width, height);
@@ -211,10 +211,10 @@ Grid Zoo::load_ascii(const std::string& path) {
 					input.get();
 				}
 			} else {
-				throw std::runtime_error("The character for a cell is not the ALIVE or DEAD character");
+				throw std::runtime_error(char_not_in_cell_enum_error);
 			}
 		} else {
-			throw std::runtime_error("Newline characters are not found when expected during parsing");
+			throw std::runtime_error(newline_characters_not_found_error);
 		}
 	}
 
@@ -270,7 +270,7 @@ void Zoo::save_ascii(const std::string& path, const Grid& grid) {
 			}
 		}
 	} else {
-		throw std::runtime_error("The file cannot be opened");
+		throw std::runtime_error(file_cannot_be_opened_error + path);
 	}
 	file.close();
 }
@@ -301,7 +301,7 @@ Grid Zoo::load_binary(const std::string& path) {
 
 	std::ifstream file(path, std::ios::binary);
 	if(!file) {
-		throw std::runtime_error("File cannot be opened!\nPath: " + path);
+		throw std::runtime_error(file_cannot_be_opened_error + path);
 	}
 
 	int width, height;
@@ -327,7 +327,7 @@ Grid Zoo::load_binary(const std::string& path) {
 
 		// Check if file ends unexpectedly
 		if (!file) {
-			throw std::runtime_error("File ends unexpectedly");
+			throw std::runtime_error(file_ends_unexpectedly_error);
 		}
 
 		// Loop through byte and set Cell to dead or alive
@@ -389,7 +389,7 @@ void Zoo::save_binary(const std::string& path, const Grid& grid) {
 	std::ofstream file(path, std::ios::out | std::ios::binary);
 
 	if(!file) {
-		throw std::runtime_error("File cannot be opened!\nPath: " + path);
+		throw std::runtime_error(file_cannot_be_opened_error + path);
 	}
 
 	// Grab width and height
