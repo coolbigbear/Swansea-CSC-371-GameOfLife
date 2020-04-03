@@ -78,8 +78,8 @@ Grid::Grid(const int gridSize) : Grid(gridSize, gridSize) {
  */
 Grid::Grid(int width, int height) : grid_height(height), grid_width(width) {
 	zero_values_if_negative(width, height);
-    std::vector<Cell> tempGrid(width * height, Cell::DEAD);
-    this->grid = tempGrid;
+    std::vector<Cell> temp_grid(width * height, Cell::DEAD);
+    this->grid.swap(temp_grid)
 }
 
 /**
@@ -297,7 +297,7 @@ void Grid::resize(int width, int height) {
     }
 
     // Assign grid and update height and width
-    this->grid = new_grid;
+    this->grid.swap(new_grid);
     this->grid_height = height;
     this->grid_width = width;
 }
