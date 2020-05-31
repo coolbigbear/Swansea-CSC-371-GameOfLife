@@ -7,6 +7,7 @@ Uses [cxxopts](https://github.com/jarro2783/cxxopts) under the MIT license.
 
 # Usage
 Run Game_of_Life.cpp with -h or --help to print the usage message
-	- i.e `./Game_of_Life --help`
+
+- i.e `./Game_of_Life --help`
 # Contributors
 Includes code created by [JossWhittle](https://github.com/JossWhittle) for testing and running.
