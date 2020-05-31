@@ -18,7 +18,7 @@
  *          - Moving off the left edge you appear on the right edge and vice versa.
  *          - Moving off the top edge you appear on the bottom edge and vice versa.
  *
- * @author ***REMOVED***
+ * @author **REMOVED**
  * @date March, 2020
  */
 #include "world.h"
